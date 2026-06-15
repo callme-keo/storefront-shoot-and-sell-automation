@@ -10,3 +10,4 @@ clients/*/photos/
 clients/*/stories/
 clients/*/posts/
 *.zip
+.vercel

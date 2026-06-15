@@ -5,7 +5,6 @@ const fs = require('fs');
 const path = require('path');
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 function readRawBody(req) {
   return new Promise((resolve, reject) => {
@@ -36,6 +35,11 @@ async function updateAirtable(slug, pack, email, datePaiement) {
 }
 
 async function scheduleFollowupEmail(to, pack) {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('[webhook] RESEND_API_KEY absent — email J+3 non programmé');
+    return;
+  }
+  const resend = new Resend(process.env.RESEND_API_KEY);
   const tplPath = path.join(__dirname, '..', 'emails', 'suivi-j3.html');
   const html = fs.existsSync(tplPath) ? fs.readFileSync(tplPath, 'utf8') : '';
   const packLabel = pack === 'hd' ? 'Pack Réseaux + HD' : 'Pack Réseaux';
