@@ -169,10 +169,6 @@
 </head>
 <body>
 
-  <div class="ribbon">
-    <b>DÉMO</b> — page qui s'affiche après paiement. La facture se génère côté navigateur (aucune donnée envoyée). Branche tes vrais fichiers, ton lien de paiement, et un outil de facturation pour la conformité.
-  </div>
-
   <main class="ticket">
     <div class="pad">
       <div class="head">
@@ -324,9 +320,10 @@
 
 <script>
 (function(){
-  // --- lire le paramètre ?pack= dans l'URL ---
   var params = new URLSearchParams(window.location.search);
-  var pack = params.get('pack') || 'hd'; // défaut : hd si pas de paramètre
+  var pack = params.get('pack') || 'hd';
+  var slug = params.get('slug');
+  var session_id = params.get('session_id');
 
   var PACKS = {
     reseaux: {
@@ -368,18 +365,22 @@
   document.getElementById('dDate').value = fr;
   document.getElementById('dNum').value = now.getFullYear()+'-'+seq;
 
-  // --- téléchargement selon le pack ---
+  // --- téléchargement sécurisé via R2 ---
   document.getElementById('dlBtn').addEventListener('click',function(){
-    var note = 'DÉMO — Pack : ' + p.label + '\n'
-             + 'En production, ce bouton pointe vers : ' + p.zip + ' sur Cloudflare R2.\n'
-             + 'Stripe passe ?pack=reseaux ou ?pack=hd dans la success_url.';
-    var blob = new Blob([note],{type:'text/plain'});
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = p.zip;
-    document.body.appendChild(a); a.click(); a.remove();
+    if (session_id && slug) {
+      window.location.href = '/api/download?session_id=' + session_id + '&slug=' + slug + '&pack=' + pack;
+    }
     document.getElementById('dlGot').classList.add('show');
   });
+
+  // Charger le nom de la boutique depuis data.json
+  if (slug) {
+    fetch('/clients/' + slug + '/data.json')
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){
+        if (d && d.nom) document.getElementById('shopName').textContent = d.nom;
+      });
+  }
 
   // --- toggle invoice form ---
   var toggle = document.getElementById('invToggle');

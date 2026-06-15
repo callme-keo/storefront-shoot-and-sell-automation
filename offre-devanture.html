@@ -162,10 +162,6 @@
 <body>
 <div class="wrap">
 
-  <div class="ribbon">
-    <b>DÉMO</b> — remplace les cadres par tes photos (CSS <code>background-image</code>) et les boutons par tes liens de paiement Stripe / Revolut. Le bouton « shooting » ouvre un email.
-  </div>
-
   <!-- HERO -->
   <section class="card-sheet">
     <div class="pad">
@@ -261,7 +257,7 @@
 
 <script>
 (function(){
-  // build the locked contact sheet with blur + cadenas
+  // Contact sheet cadenassé
   var labels = ['01','02','03','04','05','06','07','08','09','10'];
   var lock = '<div class="frame-img"></div><span class="lock"><svg viewBox="0 0 24 24" fill="none" stroke="#2243C8" stroke-width="1.8"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>';
   var sheet = document.getElementById('sheet');
@@ -269,29 +265,42 @@
     return '<div class="frame locked"><span class="tag">'+l+'</span>'+lock+'</div>';
   }).join('');
 
-  // bouton téléchargement photo offerte
-  document.getElementById('dlGift').addEventListener('click',function(){
-    var note = "DÉMO — ici se trouve ta photo teaser (teaser.jpg).\nEn production, ce bouton pointe vers le fichier dans Cloudflare R2.";
-    var blob = new Blob([note],{type:'text/plain'});
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'devanture-offerte-DEMO.txt';
-    document.body.appendChild(a); a.click(); a.remove();
+  var params = new URLSearchParams(window.location.search);
+  var slug = params.get('slug');
+
+  // Bouton photo offerte
+  document.getElementById('dlGift').addEventListener('click', function(){
+    if (slug) {
+      window.open('/api/teaser?slug=' + slug, '_blank');
+    }
     var note_el = document.getElementById('dlNote');
     note_el.textContent = '✓ Photo téléchargée — elle est à vous !';
     note_el.classList.add('show');
   });
 
-  // demo: pay buttons not yet wired
-  document.querySelectorAll('[data-pay]').forEach(function(a){
-    a.addEventListener('click',function(e){
-      if(a.getAttribute('href').indexOf('#REMPLACER')===0){
-        e.preventDefault();
-        var hint = a.parentElement.querySelector('.payhint');
-        if(hint) hint.classList.add('show');
+  if (!slug) return;
+
+  // Charger les données du client
+  fetch('/clients/' + slug + '/data.json')
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(d){
+      if (!d) return;
+
+      // Photo teaser en fond de la frame hero
+      var heroFrame = document.querySelector('.hero-frame');
+      if (heroFrame) {
+        heroFrame.style.backgroundImage = 'url(/api/teaser?slug=' + slug + ')';
+        heroFrame.style.backgroundSize = 'cover';
+        heroFrame.style.backgroundPosition = 'center';
+      }
+
+      // Brancher les liens de paiement Stripe
+      var payBtns = document.querySelectorAll('[data-pay]');
+      if (payBtns.length >= 2) {
+        payBtns[0].href = d.lien_stripe_reseaux;
+        payBtns[1].href = d.lien_stripe_hd;
       }
     });
-  });
 })();
 </script>
 </body>

@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+node_modules/
+.DS_Store
+.vercel/
+
+# photos — jamais dans git, toujours sur R2
+clients/*/photos/
+clients/*/stories/
+clients/*/posts/
+*.zip
