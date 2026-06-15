@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Livraison & facture — démo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --paper:#FBFBF8;
+    --page:#EDEBE3;
+    --ink:#17150F;
+    --muted:#8C867A;
+    --line:#E6E2D8;
+    --accent:#2243C8;      /* cyanotype */
+    --accent-2:#EEF1FC;
+    --ok:#1f6b3b;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--page);
+    color:var(--ink);
+    font-family:'Poppins',system-ui,-apple-system,'Segoe UI',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+    padding:28px 16px 48px;
+  }
+  .data{font-family:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--muted);
+  }
+
+  /* meta ribbon — note to the builder, not the client */
+  .ribbon{
+    max-width:600px;margin:0 auto 14px;
+    border:1px dashed var(--accent);
+    background:var(--accent-2);
+    color:var(--accent);
+    font-family:'IBM Plex Mono',monospace;font-size:11.5px;
+    padding:8px 14px;border-radius:6px;
+  }
+  .ribbon b{font-weight:700}
+
+  .ticket{
+    max-width:600px;margin:0 auto;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:8px;
+    box-shadow:0 1px 0 rgba(0,0,0,.02),0 18px 40px -28px rgba(20,18,12,.45);
+    overflow:hidden;
+  }
+  .pad{padding:30px 34px}
+  @media(max-width:520px){.pad{padding:24px 20px}}
+
+  .head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px}
+  .shop{font-size:30px;line-height:1.08;font-weight:700;letter-spacing:-.015em;margin:10px 0 0}
+  .ref{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);text-align:right;white-space:nowrap}
+  .ref b{display:block;color:var(--ink);font-weight:700;margin-top:3px}
+
+  .paid{display:flex;align-items:center;gap:14px;margin-top:20px}
+  .paid .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px rgba(31,107,59,.12)}
+  .paid .txt{font-size:14px}
+  .paid .txt b{font-weight:600}
+  .stamp{
+    margin-left:auto;
+    border:2px solid var(--accent);color:var(--accent);
+    font-family:'IBM Plex Mono',monospace;font-weight:700;
+    font-size:13px;letter-spacing:.18em;
+    padding:5px 11px;border-radius:5px;
+    transform:rotate(-7deg);opacity:.85;
+    user-select:none;
+  }
+
+  hr.solid{border:0;border-top:1px solid var(--line);margin:0}
+  .tear{
+    border:0;border-top:1.5px dashed var(--line);
+    margin:0;position:relative;
+  }
+
+  .block-title{font-size:13px;font-weight:600;letter-spacing:.01em;margin:0 0 4px}
+  .deliver .files{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--muted);margin:2px 0 18px;line-height:1.7}
+  .deliver .files span{color:var(--ink)}
+
+  .btn{
+    appearance:none;border:0;cursor:pointer;
+    font-family:'Poppins',sans-serif;font-weight:600;font-size:15px;
+    border-radius:7px;padding:14px 20px;width:100%;
+    transition:transform .06s ease, background .15s ease;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:#0a0a0a}
+  .btn-ghost{
+    background:transparent;color:var(--accent);
+    border:1px solid var(--line);font-size:14px;
+  }
+  .btn-ghost:hover{border-color:#0a0a0a;color:#0a0a0a;background:transparent}
+
+  .got{display:none;margin-top:12px;font-size:13px;color:var(--ok);font-family:'IBM Plex Mono',monospace}
+  .got.show{display:block}
+
+  /* invoice section */
+  .inv-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .inv-head p{margin:6px 0 0;font-size:13px;color:var(--muted);max-width:46ch}
+  .form{display:none;margin-top:22px}
+  .form.show{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  fieldset{border:1px solid var(--line);border-radius:7px;padding:14px 16px 16px;margin:0 0 14px}
+  legend{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--accent);padding:0 7px;
+  }
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:11px 13px}
+  .full{grid-column:1 / -1}
+  @media(max-width:520px){.grid{grid-template-columns:1fr}}
+  label.f{display:block;font-size:11px;color:var(--muted);margin:0 0 5px;letter-spacing:.01em}
+  input{
+    width:100%;border:1px solid var(--line);border-radius:6px;
+    background:#fff;padding:9px 11px;font-size:13.5px;color:var(--ink);
+    font-family:'Poppins',sans-serif;
+  }
+  input.data,input.mono{font-family:'IBM Plex Mono',monospace;font-size:12.5px}
+  input:focus{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent)}
+
+  .foot{padding:16px 34px 26px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--muted);line-height:1.7}
+  @media(max-width:520px){.foot{padding:16px 20px 24px}}
+  .foot b{color:var(--ink);font-weight:700}
+
+  /* emphase bleue sur les moments importants */
+  .hl{color:var(--accent);font-weight:700}
+  .paid .txt b{color:var(--accent);font-weight:700}
+  .deliver .files span{color:var(--accent);font-weight:700}
+
+  /* footer stylé — identique à offre-devanture */
+  .site-footer{
+    max-width:600px;margin:40px auto 0;
+    background:var(--ink);
+    border-radius:10px;
+    padding:24px 30px;
+    display:flex;align-items:center;justify-content:space-between;gap:20px;
+    flex-wrap:wrap;
+    position:relative;
+  }
+  .site-footer::before{
+    content:'';position:absolute;top:-20px;left:50%;transform:translateX(-50%);
+    width:40px;height:2px;background:var(--line);border-radius:2px;
+  }
+  .footer-left .fname{font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;color:#F4F1EA}
+  .footer-left .ftitle{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#8a8478;letter-spacing:.14em;text-transform:uppercase;margin-top:3px}
+  .footer-links{display:flex;gap:10px;flex-wrap:wrap}
+  .footer-links a{
+    display:inline-flex;align-items:center;gap:7px;
+    font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;
+    color:#F4F1EA;text-decoration:none;
+    background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+    border-radius:7px;padding:8px 14px;
+    transition:background .15s,border-color .15s;
+  }
+  .footer-links a:hover{background:var(--accent);border-color:var(--accent)}
+  .footer-links a svg{width:13px;height:13px;flex-shrink:0;opacity:.8}
+</style>
+</head>
+<body>
+
+  <div class="ribbon">
+    <b>DÉMO</b> — page qui s'affiche après paiement. La facture se génère côté navigateur (aucune donnée envoyée). Branche tes vrais fichiers, ton lien de paiement, et un outil de facturation pour la conformité.
+  </div>
+
+  <main class="ticket">
+    <div class="pad">
+      <div class="head">
+        <div>
+          <div class="eyebrow">Livraison</div>
+          <h1 class="shop" id="shopName">Votre commande</h1>
+        </div>
+        <div class="ref">
+          Réf.<b id="orderRef">CMD-2026-0142</b>
+          <span id="todayTop"></span>
+        </div>
+      </div>
+
+      <div class="paid">
+        <span class="dot"></span>
+        <span class="txt"><b>Paiement reçu.</b> Vos fichiers sont prêts.</span>
+        <span class="stamp">RÉGLÉ</span>
+      </div>
+    </div>
+
+    <hr class="solid">
+
+    <div class="pad deliver">
+      <p class="block-title" id="packLabel">Vos photos</p>
+      <div class="files" id="packFiles">
+        <!-- injecté par JS selon ?pack= -->
+      </div>
+      <button class="btn btn-primary" id="dlBtn">Télécharger mes photos</button>
+      <div class="got" id="dlGot">↓ Téléchargement lancé — fichier .zip dans vos téléchargements.</div>
+    </div>
+
+    <hr class="tear">
+
+    <div class="pad">
+      <div class="inv-head">
+        <div>
+          <p class="block-title">Besoin d'une facture ?</p>
+          <p>Renseignez vos informations, le PDF se génère <span class="hl">aussitôt</span>. Mentions micro-entreprise incluses.</p>
+        </div>
+      </div>
+      <button class="btn btn-ghost" id="invToggle" style="margin-top:16px">Établir une facture</button>
+
+      <div class="form" id="invForm">
+        <fieldset>
+          <legend>Vendeur</legend>
+          <div class="grid">
+            <div class="full">
+              <label class="f">Nom / raison sociale</label>
+              <input id="sName" value="Studio — [ton nom]">
+            </div>
+            <div>
+              <label class="f">Statut</label>
+              <input id="sStatus" value="Micro-entreprise · EI">
+            </div>
+            <div>
+              <label class="f">SIRET</label>
+              <input class="mono" id="sSiret" value="123 456 789 00012">
+            </div>
+            <div class="full">
+              <label class="f">Adresse</label>
+              <input id="sAddr" value="12 rue de la Photographie, 75011 Paris">
+            </div>
+            <div class="full">
+              <label class="f">Email</label>
+              <input id="sEmail" value="contact@tonstudio.fr">
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Client</legend>
+          <div class="grid">
+            <div class="full">
+              <label class="f">Raison sociale</label>
+              <input id="cName" value="Épicerie Fine du Marché">
+            </div>
+            <div class="full">
+              <label class="f">Adresse</label>
+              <input id="cAddr" value="8 place du Marché, 75011 Paris">
+            </div>
+            <div>
+              <label class="f">SIREN / SIRET (optionnel)</label>
+              <input class="mono" id="cSiret" value="">
+            </div>
+            <div>
+              <label class="f">Email (optionnel)</label>
+              <input id="cEmail" value="">
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Détails</legend>
+          <div class="grid">
+            <div class="full">
+              <label class="f">Désignation</label>
+              <input id="dLabel" value="Pack photos devanture — 10 visuels HD + formats story &amp; post">
+            </div>
+            <div>
+              <label class="f">Quantité</label>
+              <input class="mono" id="dQty" value="1" inputmode="numeric">
+            </div>
+            <div>
+              <label class="f">Prix unitaire (€)</label>
+              <input class="mono" id="dPrice" value="49" inputmode="decimal">
+            </div>
+            <div>
+              <label class="f">N° de facture</label>
+              <input class="mono" id="dNum">
+            </div>
+            <div>
+              <label class="f">Date</label>
+              <input class="mono" id="dDate">
+            </div>
+          </div>
+        </fieldset>
+
+        <button class="btn btn-primary" id="genBtn">Générer ma facture (PDF)</button>
+        <div class="got" id="genGot">✓ Facture générée et téléchargée.</div>
+      </div>
+    </div>
+
+    <hr class="solid">
+    <div class="foot">
+      Pour une facturation conforme : <b>numérotation séquentielle sans trou</b> et, en B2B, passage par une <b>plateforme agréée</b> dès sept. 2027.
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-left">
+      <div class="fname">Kevin CARDOSO</div>
+      <div class="ftitle">Photographe</div>
+    </div>
+    <div class="footer-links">
+      <a href="https://www.instagram.com/callme_keo" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".5" fill="currentColor"/></svg>
+        @callme_keo
+      </a>
+      <a href="mailto:kevin.cardoso@icloud.com?subject=Je%20suis%20intéressé%20par%20votre%20travail&body=Bonjour%20Kevin%2C%0A%0AJ'ai%20vu%20votre%20photo%20de%20notre%20devanture%20et%20je%20souhaite%20en%20savoir%20plus.%0A%0ACordialement%2C">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        kevin.cardoso@icloud.com
+      </a>
+      <a href="mentions-legales.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Mentions légales
+      </a>
+    </div>
+  </footer>
+
+<script>
+(function(){
+  // --- lire le paramètre ?pack= dans l'URL ---
+  var params = new URLSearchParams(window.location.search);
+  var pack = params.get('pack') || 'hd'; // défaut : hd si pas de paramètre
+
+  var PACKS = {
+    reseaux: {
+      label:   'Pack Réseaux',
+      titre:   'Pack Réseaux',
+      files:   '<span>20</span> visuels <span class="hl">prêts à poster</span> — <span>10</span> stories + <span>10</span> posts, recadrés aux bons formats.',
+      prix:    '39',
+      zip:     'pack-reseaux-DEMO.txt',
+      designa: 'Pack photos devanture — 20 visuels stories & posts prêts à poster'
+    },
+    hd: {
+      label:   'Pack Réseaux + HD',
+      titre:   'Pack Réseaux + HD',
+      files:   '<span>20</span> visuels <span class="hl">prêts à poster</span> — <span>10</span> stories + <span>10</span> posts &nbsp;·&nbsp; <span>10</span> photos <span class="hl">ultra HD</span> pleine résolution.',
+      prix:    '49',
+      zip:     'pack-hd-DEMO.txt',
+      designa: 'Pack photos devanture — 20 visuels stories & posts + 10 photos ultra HD'
+    }
+  };
+
+  var p = PACKS[pack] || PACKS.hd;
+
+  // injecter le nom du pack + contenu fichiers
+  document.getElementById('shopName').textContent  = p.titre;
+  document.getElementById('packLabel').textContent = p.label;
+  document.getElementById('packFiles').innerHTML   = p.files;
+
+  // pré-remplir la désignation et le prix dans la facture
+  var dLabel = document.getElementById('dLabel');
+  var dPrice = document.getElementById('dPrice');
+  if(dLabel) dLabel.value = p.designa;
+  if(dPrice) dPrice.value = p.prix;
+
+  // --- dates / number prefill ---
+  var now = new Date();
+  var fr = now.toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
+  var seq = '0001';
+  document.getElementById('todayTop').textContent = fr;
+  document.getElementById('dDate').value = fr;
+  document.getElementById('dNum').value = now.getFullYear()+'-'+seq;
+
+  // --- téléchargement selon le pack ---
+  document.getElementById('dlBtn').addEventListener('click',function(){
+    var note = 'DÉMO — Pack : ' + p.label + '\n'
+             + 'En production, ce bouton pointe vers : ' + p.zip + ' sur Cloudflare R2.\n'
+             + 'Stripe passe ?pack=reseaux ou ?pack=hd dans la success_url.';
+    var blob = new Blob([note],{type:'text/plain'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = p.zip;
+    document.body.appendChild(a); a.click(); a.remove();
+    document.getElementById('dlGot').classList.add('show');
+  });
+
+  // --- toggle invoice form ---
+  var toggle = document.getElementById('invToggle');
+  toggle.addEventListener('click',function(){
+    var f = document.getElementById('invForm');
+    var open = f.classList.toggle('show');
+    toggle.textContent = open ? 'Masquer le formulaire' : 'Établir une facture';
+  });
+
+  // --- helpers ---
+  function euro(n){ return (Math.round(n*100)/100).toFixed(2).replace('.',',') + ' \u20AC'; }
+  function val(id){ return (document.getElementById(id).value||'').trim(); }
+
+  // --- generate PDF ---
+  document.getElementById('genBtn').addEventListener('click',function(){
+    var jsPDF = window.jspdf.jsPDF;
+    var doc = new jsPDF({unit:'mm',format:'a4'});
+    var M = 20, W = 210, right = W - M;
+    var ink = [23,21,15], muted=[140,134,122], accent=[17,74,120], line=[225,222,210];
+    var qty = parseFloat(val('dQty').replace(',','.'))||1;
+    var pu  = parseFloat(val('dPrice').replace(',','.'))||0;
+    var tot = qty*pu;
+    var y = 22;
+
+    // title
+    doc.setFont('helvetica','bold'); doc.setFontSize(26); doc.setTextColor.apply(null,ink);
+    doc.text('FACTURE', M, y);
+    doc.setFont('courier','normal'); doc.setFontSize(9); doc.setTextColor.apply(null,muted);
+    doc.text('N\u00B0  '+val('dNum'), right, y-5, {align:'right'});
+    doc.text("Date d'\u00E9mission   "+val('dDate'), right, y, {align:'right'});
+
+    y += 12;
+    doc.setDrawColor.apply(null,accent); doc.setLineWidth(0.6); doc.line(M,y,right,y);
+
+    // seller / client columns
+    y += 9;
+    var colR = 112;
+    doc.setFont('courier','normal'); doc.setFontSize(7.5); doc.setTextColor.apply(null,accent);
+    doc.text('VENDEUR', M, y); doc.text('CLIENT', colR, y);
+    doc.setTextColor.apply(null,ink); doc.setFontSize(9.5);
+    function lines(arr,x,yy){ doc.setFont('helvetica','normal');
+      arr.forEach(function(t,i){ if(!t) return;
+        doc.setFont('helvetica', i===0?'bold':'normal');
+        doc.text(String(t), x, yy + 5.4*(i)); }); }
+    var sy = y+6;
+    lines([val('sName'), val('sStatus'), val('sAddr'), 'SIRET '+val('sSiret'), val('sEmail')], M, sy);
+    lines([val('cName'), val('cAddr'), val('cSiret')?('SIREN '+val('cSiret')):'', val('cEmail')], colR, sy);
+
+    y = sy + 5.4*5 + 6;
+    doc.setDrawColor.apply(null,line); doc.setLineWidth(0.3); doc.line(M,y,right,y);
+
+    // table header
+    y += 8;
+    doc.setFont('courier','normal'); doc.setFontSize(7.5); doc.setTextColor.apply(null,muted);
+    doc.text('D\u00C9SIGNATION', M, y);
+    doc.text('QT\u00C9', 132, y, {align:'right'});
+    doc.text('PU HT', 162, y, {align:'right'});
+    doc.text('TOTAL HT', right, y, {align:'right'});
+    y += 3; doc.setDrawColor.apply(null,line); doc.line(M,y,right,y);
+
+    // row (wrap designation)
+    y += 7;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor.apply(null,ink);
+    var dsg = doc.splitTextToSize(val('dLabel'), 86);
+    doc.text(dsg, M, y);
+    doc.setFont('courier','normal');
+    doc.text(String(qty), 132, y, {align:'right'});
+    doc.text(euro(pu), 162, y, {align:'right'});
+    doc.text(euro(tot), right, y, {align:'right'});
+
+    y += Math.max(dsg.length*4.6, 8) + 4;
+    doc.setDrawColor.apply(null,line); doc.line(120,y,right,y);
+
+    // totals
+    y += 7;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor.apply(null,muted);
+    doc.text('Total HT', 162, y, {align:'right'});
+    doc.setTextColor.apply(null,ink); doc.setFont('courier','normal'); doc.text(euro(tot), right, y, {align:'right'});
+    y += 8;
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor.apply(null,accent);
+    doc.text('Total \u00E0 r\u00E9gler', 162, y, {align:'right'});
+    doc.setFont('courier','bold'); doc.text(euro(tot), right, y, {align:'right'});
+
+    y += 7;
+    doc.setFont('helvetica','italic'); doc.setFontSize(8.5); doc.setTextColor.apply(null,muted);
+    doc.text('TVA non applicable, art. 293 B du CGI.', right, y, {align:'right'});
+
+    // legal footer
+    var fy = 270;
+    doc.setDrawColor.apply(null,line); doc.setLineWidth(0.3); doc.line(M,fy,right,fy);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.3); doc.setTextColor.apply(null,muted);
+    var legal = [
+      "Paiement \u00E0 r\u00E9ception de facture. En cas de retard : p\u00E9nalit\u00E9s au taux d'int\u00E9r\u00EAt l\u00E9gal et",
+      "indemnit\u00E9 forfaitaire pour frais de recouvrement de 40 \u20AC (art. L441-10 du Code de commerce).",
+      "Pas d'escompte pour paiement anticip\u00E9."
+    ];
+    legal.forEach(function(t,i){ doc.text(t, M, fy+5+i*4); });
+
+    var num = val('dNum').replace(/[^\w-]/g,'');
+    doc.save('facture-'+num+'.pdf');
+    document.getElementById('genGot').classList.add('show');
+  });
+})();
+</script>
+</body>
+</html>

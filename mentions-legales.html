@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mentions légales — Kevin CARDOSO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBFBF8; --page:#EDEBE3; --ink:#17150F; --muted:#8C867A;
+    --line:#E6E2D8; --accent:#2243C8; --accent-2:#EEF1FC;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--page);color:var(--ink);
+    font-family:'Poppins',system-ui,-apple-system,'Segoe UI',sans-serif;
+    -webkit-font-smoothing:antialiased;line-height:1.7;
+    padding:28px 16px 48px;
+  }
+  .wrap{max-width:680px;margin:0 auto}
+
+  /* nav retour */
+  .back{
+    display:inline-flex;align-items:center;gap:7px;
+    font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:700;
+    color:var(--accent);text-decoration:none;letter-spacing:.06em;
+    margin-bottom:20px;
+  }
+  .back svg{width:14px;height:14px}
+  .back:hover{opacity:.7}
+
+  /* card */
+  .card{
+    background:var(--paper);border:1px solid var(--line);border-radius:10px;
+    box-shadow:0 18px 44px -30px rgba(20,18,12,.4);
+    overflow:hidden;margin-bottom:16px;
+  }
+  .card-head{
+    padding:22px 30px 18px;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:14px;
+  }
+  .card-head .icon{
+    width:36px;height:36px;border-radius:8px;background:var(--accent-2);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .card-head .icon svg{width:17px;height:17px;stroke:var(--accent)}
+  .card-head h2{font-size:15px;font-weight:700;margin:0;letter-spacing:-.01em}
+  .card-head .tag{
+    margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:9.5px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+    background:var(--page);border:1px solid var(--line);
+    padding:3px 8px;border-radius:4px;white-space:nowrap;
+  }
+  .card-body{padding:22px 30px 26px}
+  @media(max-width:520px){.card-head,.card-body{padding-left:20px;padding-right:20px}}
+
+  /* typographie interne */
+  .card-body h3{
+    font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent);margin:22px 0 6px;
+  }
+  .card-body h3:first-child{margin-top:0}
+  .card-body p{font-size:14px;color:#3a3630;margin:0 0 10px}
+  .card-body p:last-child{margin-bottom:0}
+  .card-body ul{font-size:14px;color:#3a3630;margin:0 0 10px;padding-left:18px}
+  .card-body ul li{margin-bottom:5px}
+  .card-body strong{color:var(--ink);font-weight:600}
+  .card-body a{color:var(--accent);font-weight:600;text-decoration:none}
+  .card-body a:hover{text-decoration:underline}
+
+  .mono{font-family:'IBM Plex Mono',monospace;font-size:12.5px;
+    background:var(--page);border:1px solid var(--line);
+    border-radius:5px;padding:10px 14px;margin:8px 0 14px;
+    color:var(--ink);line-height:1.7;display:block}
+
+  .divider{border:0;border-top:1px solid var(--line);margin:18px 0}
+
+  /* footer identique aux autres pages */
+  .site-footer{
+    margin-top:40px;background:var(--ink);border-radius:10px;
+    padding:24px 30px;display:flex;align-items:center;
+    justify-content:space-between;gap:20px;flex-wrap:wrap;position:relative;
+  }
+  .site-footer::before{
+    content:'';position:absolute;top:-20px;left:50%;transform:translateX(-50%);
+    width:40px;height:2px;background:var(--line);border-radius:2px;
+  }
+  .footer-left .fname{font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;color:#F4F1EA}
+  .footer-left .ftitle{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#8a8478;letter-spacing:.14em;text-transform:uppercase;margin-top:3px}
+  .footer-links{display:flex;gap:10px;flex-wrap:wrap}
+  .footer-links a{
+    display:inline-flex;align-items:center;gap:7px;
+    font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;
+    color:#F4F1EA;text-decoration:none;
+    background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+    border-radius:7px;padding:8px 14px;
+    transition:background .15s,border-color .15s;
+  }
+  .footer-links a:hover{background:#0a0a0a;border-color:#0a0a0a}
+  .footer-links a svg{width:13px;height:13px;flex-shrink:0;opacity:.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="offre-devanture.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+    Retour
+  </a>
+
+  <!-- MENTIONS LÉGALES -->
+  <div class="card">
+    <div class="card-head">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>
+      <h2>Mentions légales</h2>
+      <span class="tag">LCEN 2004</span>
+    </div>
+    <div class="card-body">
+      <h3>Éditeur du site</h3>
+      <code class="mono">
+        Kevin CARDOSO<br>
+        Micro-entreprise — Entrepreneur individuel (EI)<br>
+        SIRET : [TON SIRET]<br>
+        Activité : Photographie commerciale<br>
+        Adresse : [TON ADRESSE]<br>
+        Email : <a href="mailto:kevin.cardoso@icloud.com">kevin.cardoso@icloud.com</a>
+      </code>
+
+      <h3>Hébergeur</h3>
+      <code class="mono">
+        Vercel Inc.<br>
+        340 Pine Street, Suite 701 — San Francisco, CA 94104, États-Unis<br>
+        <a href="https://vercel.com" target="_blank">vercel.com</a>
+      </code>
+
+      <h3>Propriété intellectuelle</h3>
+      <p>L'ensemble des photographies présentées sur ce site sont la propriété exclusive de Kevin CARDOSO et sont protégées par le droit d'auteur (Code de la propriété intellectuelle). Toute reproduction, même partielle, sans autorisation écrite préalable est interdite.</p>
+    </div>
+  </div>
+
+  <!-- CGV -->
+  <div class="card">
+    <div class="card-head">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      </div>
+      <h2>Conditions Générales de Vente</h2>
+      <span class="tag">B2B</span>
+    </div>
+    <div class="card-body">
+      <h3>Vendeur</h3>
+      <p>Kevin CARDOSO, micro-entrepreneur, SIRET [TON SIRET], ci-après « le Photographe ».</p>
+
+      <hr class="divider">
+
+      <h3>Produits et prix</h3>
+      <p>Les offres disponibles sont :</p>
+      <ul>
+        <li><strong>Pack Réseaux — 39 €</strong> : 20 visuels numériques (10 formats story + 10 formats post), prêts à publier sur les réseaux sociaux.</li>
+        <li><strong>Pack Réseaux + HD — 49 €</strong> : 20 visuels + 10 photographies en pleine résolution (ultra HD), utilisables sur tous supports.</li>
+      </ul>
+      <p>Les prix sont exprimés en euros TTC. <strong>TVA non applicable, art. 293 B du CGI.</strong></p>
+
+      <hr class="divider">
+
+      <h3>Commande et paiement</h3>
+      <p>La commande est validée au moment du paiement en ligne. Le règlement s'effectue par carte bancaire via Stripe ou Revolut. Toute commande vaut acceptation des présentes CGV.</p>
+
+      <hr class="divider">
+
+      <h3>Livraison</h3>
+      <p>Les fichiers numériques sont mis à disposition <strong>immédiatement après paiement</strong> via un lien de téléchargement sécurisé. Aucun support physique n'est expédié.</p>
+
+      <hr class="divider">
+
+      <h3>Licence d'utilisation</h3>
+      <p>L'achat d'un pack confère à l'acheteur une <strong>licence d'utilisation non exclusive, non cessible et limitée</strong> aux usages suivants :</p>
+      <ul>
+        <li>Publication sur les réseaux sociaux du commerce acheteur (Instagram, Facebook, LinkedIn, Google…)</li>
+        <li>Utilisation sur le site web du commerce acheteur</li>
+        <li>Impression pour une utilisation en vitrine ou support print propre au commerce</li>
+      </ul>
+      <p>Sont <strong>expressément interdits</strong> : la revente des fichiers, la cession à des tiers, l'utilisation à des fins publicitaires payantes (Meta Ads, Google Ads…) sans accord préalable, et la suppression ou modification des métadonnées de droit d'auteur.</p>
+      <p>Le Photographe conserve en toutes circonstances ses droits moraux et patrimoniaux sur les œuvres.</p>
+
+      <hr class="divider">
+
+      <h3>Droit de rétractation</h3>
+      <p>Conformément à l'article L.221-28 du Code de la consommation, <strong>le droit de rétractation ne s'applique pas</strong> aux contenus numériques fournis sur un support immatériel dont l'exécution a commencé avec l'accord préalable du consommateur. Le téléchargement des fichiers vaut renonciation expresse au droit de rétractation.</p>
+      <p>Les ventes entre professionnels (B2B) ne sont pas soumises au droit de rétractation.</p>
+
+      <hr class="divider">
+
+      <h3>Responsabilité</h3>
+      <p>Le Photographe ne saurait être tenu responsable de l'utilisation faite des fichiers par l'acheteur en dehors du cadre de la licence accordée. L'acheteur est seul responsable du respect des droits à l'image des personnes éventuellement photographiées.</p>
+
+      <hr class="divider">
+
+      <h3>Litiges</h3>
+      <p>En cas de litige, une solution amiable sera recherchée en priorité. À défaut, les tribunaux français seront seuls compétents. Le droit applicable est le droit français.</p>
+    </div>
+  </div>
+
+  <!-- RGPD -->
+  <div class="card">
+    <div class="card-head">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <h2>Protection des données</h2>
+      <span class="tag">RGPD</span>
+    </div>
+    <div class="card-body">
+      <h3>Responsable du traitement</h3>
+      <p>Kevin CARDOSO — <a href="mailto:kevin.cardoso@icloud.com">kevin.cardoso@icloud.com</a></p>
+
+      <h3>Données collectées</h3>
+      <p>Le formulaire de facturation optionnel collecte : raison sociale, adresse, SIRET et email du client. Ces données sont utilisées <strong>uniquement pour générer la facture PDF dans votre navigateur</strong>. Elles ne sont transmises à aucun serveur et ne sont pas stockées.</p>
+      <p>Le paiement est géré par Stripe ou Revolut. Ces plateformes collectent et traitent les données bancaires selon leurs propres politiques de confidentialité.</p>
+
+      <h3>Durée de conservation</h3>
+      <p>Aucune donnée personnelle n'est conservée côté serveur. Les données saisies dans le formulaire de facture restent dans votre navigateur et disparaissent à la fermeture de la page.</p>
+
+      <h3>Vos droits</h3>
+      <p>Conformément au RGPD, vous disposez d'un droit d'accès, de rectification et de suppression de vos données. Pour toute demande : <a href="mailto:kevin.cardoso@icloud.com">kevin.cardoso@icloud.com</a></p>
+
+      <h3>Cookies</h3>
+      <p>Ce site n'utilise aucun cookie de tracking ou publicitaire.</p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-left">
+      <div class="fname">Kevin CARDOSO</div>
+      <div class="ftitle">Photographe</div>
+    </div>
+    <div class="footer-links">
+      <a href="https://www.instagram.com/callme_keo" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".5" fill="currentColor"/></svg>
+        @callme_keo
+      </a>
+      <a href="mailto:kevin.cardoso@icloud.com?subject=Je%20suis%20intéressé%20par%20votre%20travail&body=Bonjour%20Kevin%2C%0A%0AJ'ai%20vu%20votre%20photo%20de%20notre%20devanture%20et%20je%20souhaite%20en%20savoir%20plus.%0A%0ACordialement%2C">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        kevin.cardoso@icloud.com
+      </a>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

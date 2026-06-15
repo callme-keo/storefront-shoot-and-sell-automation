@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Votre devanture — la série</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBFBF8; --page:#EDEBE3; --ink:#17150F; --muted:#8C867A;
+    --line:#E6E2D8; --accent:#2243C8; --accent-2:#EEF1FC; --frame:#DEDAD0;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--page); color:var(--ink);
+    font-family:'Poppins',system-ui,-apple-system,'Segoe UI',sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.5;
+    padding:24px 16px 60px;
+  }
+  .wrap{max-width:880px;margin:0 auto}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+  .accent{color:var(--accent)}
+
+  .ribbon{
+    border:1px dashed var(--accent);background:var(--accent-2);color:var(--accent);
+    font-family:'IBM Plex Mono',monospace;font-size:11.5px;padding:8px 14px;border-radius:6px;margin-bottom:18px;
+  }
+  .ribbon b{font-weight:700}
+
+  .card-sheet{background:var(--paper);border:1px solid var(--line);border-radius:10px;
+    box-shadow:0 18px 44px -30px rgba(20,18,12,.5);overflow:hidden}
+  .pad{padding:34px 38px}
+  @media(max-width:600px){.pad{padding:24px 20px}}
+
+  /* hero */
+  .hero{display:grid;grid-template-columns:1fr 1.05fr;gap:32px;align-items:center}
+  @media(max-width:680px){.hero{grid-template-columns:1fr;gap:24px}}
+  .hero h1{font-size:38px;line-height:1.04;font-weight:800;letter-spacing:-.02em;margin:14px 0 0}
+  @media(max-width:600px){.hero h1{font-size:30px}}
+  .hero .lead{font-size:15.5px;color:#4a463d;margin:16px 0 0;max-width:38ch}
+
+  /* photo frames */
+  .frame{position:relative;border-radius:5px;border:1px solid var(--frame);overflow:hidden;
+    background:
+      repeating-linear-gradient(135deg,rgba(140,134,122,.05) 0 12px,rgba(140,134,122,0) 12px 24px),
+      linear-gradient(160deg,#EFEDE6,#E2DFD6);}
+  .frame .tag{position:absolute;top:8px;left:8px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;
+    letter-spacing:.14em;color:var(--muted);background:rgba(251,251,248,.85);padding:2px 6px;border-radius:3px}
+  .hero-frame{aspect-ratio:3/2}
+  .hero-frame .gift{position:absolute;bottom:10px;right:10px;font-family:'IBM Plex Mono',monospace;font-weight:700;
+    font-size:10.5px;letter-spacing:.14em;color:#fff;background:var(--accent);padding:4px 9px;border-radius:4px}
+
+  /* contact sheet */
+  .sheet-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:14px}
+  .sheet-head .t{font-size:14px;font-weight:600}
+  .sheet-head .s{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)}
+  .grid-sheet{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  @media(max-width:600px){.grid-sheet{grid-template-columns:repeat(3,1fr);gap:6px}}
+  .grid-sheet .frame{aspect-ratio:9/16}
+  .grid-sheet .frame:last-child{grid-column:1}
+  .locked::after{content:"";position:absolute;inset:0;background:rgba(243,241,234,.55)}
+  .locked .frame-img{filter:blur(7px);transform:scale(1.05)}
+  .lock{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2}
+  .lock svg{width:18px;height:18px;opacity:.5}
+
+  /* bouton téléchargement photo offerte */
+  .dl-gift{margin-top:14px}
+  .btn-dl{
+    appearance:none;border:0;cursor:pointer;
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:'Poppins',sans-serif;font-weight:600;font-size:13.5px;
+    background:var(--accent);color:#fff;
+    border-radius:8px;padding:11px 18px;
+    transition:transform .06s ease,background .15s ease;
+  }
+  .btn-dl:active{transform:translateY(1px)}
+  .btn-dl:hover{background:#0a0a0a}
+  .btn-dl svg{width:15px;height:15px;flex-shrink:0}
+  .dl-note{margin-top:7px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--muted)}
+  .dl-note.show{color:#1f6b3b}
+
+  /* offers */
+  .offers{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:6px}
+  @media(max-width:680px){.offers{grid-template-columns:1fr}}
+  .card{border:1px solid var(--line);border-radius:10px;padding:22px 22px 24px;background:#fff;position:relative;display:flex;flex-direction:column}
+  .card.hot{border:1.6px solid var(--accent);box-shadow:0 14px 30px -22px rgba(17,74,120,.6)}
+  .card .name{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+  .card .badge{position:absolute;top:-11px;right:18px;background:var(--accent);color:#fff;
+    font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.14em;padding:4px 10px;border-radius:20px}
+  .price{display:flex;align-items:baseline;gap:4px;margin:12px 0 2px}
+  .price .n{font-size:46px;font-weight:800;letter-spacing:-.03em;line-height:1}
+  .price .c{font-family:'IBM Plex Mono',monospace;font-size:18px;color:var(--muted)}
+  .card .desc{font-size:13.5px;color:#4a463d;margin:10px 0 18px;flex:1}
+  .card .desc b{font-weight:600;color:var(--ink)}
+  .nudge{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent);margin:-8px 0 14px}
+
+  .btn{appearance:none;border:0;cursor:pointer;display:block;text-align:center;text-decoration:none;
+    font-family:'Poppins',sans-serif;font-weight:600;font-size:15px;border-radius:8px;padding:13px 18px;
+    transition:transform .06s ease,background .15s ease}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:#0a0a0a}
+  .btn-soft{background:var(--accent-2);color:var(--accent);border:1px solid transparent}
+  .btn-soft:hover{border-color:#0a0a0a;color:#0a0a0a}
+  .payhint{display:none;margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--muted)}
+  .payhint.show{display:block}
+
+  /* upsell */
+  .upsell{margin-top:16px;background:var(--ink);color:#F4F1EA;border-radius:10px;padding:30px 34px;
+    display:flex;justify-content:space-between;align-items:center;gap:24px}
+  @media(max-width:680px){.upsell{flex-direction:column;align-items:flex-start;padding:24px 22px}}
+  .upsell h2{font-size:24px;font-weight:700;letter-spacing:-.01em;margin:8px 0 0}
+  .upsell p{font-size:13.5px;color:#bdb6a8;margin:10px 0 0;max-width:42ch}
+  .upsell .eyebrow{color:#8a8478}
+  .btn-shoot{background:#F4F1EA;color:var(--ink);white-space:nowrap;padding:14px 22px}
+  .btn-shoot:hover{background:#0a0a0a;color:#F4F1EA}
+
+  /* footer stylé */
+  .footer{
+    margin-top:40px;
+    background:var(--ink);
+    border-radius:10px;
+    padding:24px 30px;
+    display:flex;align-items:center;justify-content:space-between;gap:20px;
+    flex-wrap:wrap;
+    position:relative;
+  }
+  .footer::before{
+    content:'';position:absolute;top:-20px;left:50%;transform:translateX(-50%);
+    width:40px;height:2px;background:var(--line);border-radius:2px;
+  }
+  .footer-left .fname{
+    font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;
+    color:#F4F1EA;letter-spacing:.01em;
+  }
+  .footer-left .ftitle{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;
+    color:#8a8478;letter-spacing:.14em;text-transform:uppercase;margin-top:3px;
+  }
+  .footer-links{display:flex;gap:10px;flex-wrap:wrap}
+  .footer-links a{
+    display:inline-flex;align-items:center;gap:7px;
+    font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;
+    color:#F4F1EA;text-decoration:none;
+    background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:7px;padding:8px 14px;
+    transition:background .15s,border-color .15s;
+  }
+  .footer-links a:hover{background:var(--accent);border-color:var(--accent)}
+  .footer-links a svg{width:13px;height:13px;flex-shrink:0;opacity:.8}
+
+  /* emphase bleue sur les moments importants */
+  .hl{color:var(--accent);font-weight:700}
+  .desc b{color:var(--accent);font-weight:700}
+  .lead b{color:var(--accent);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ribbon">
+    <b>DÉMO</b> — remplace les cadres par tes photos (CSS <code>background-image</code>) et les boutons par tes liens de paiement Stripe / Revolut. Le bouton « shooting » ouvre un email.
+  </div>
+
+  <!-- HERO -->
+  <section class="card-sheet">
+    <div class="pad">
+      <div class="hero">
+        <div>
+          <h1>Votre devanture,<br>comme on ne la voit jamais.</h1>
+          <p class="lead">Je suis passé devant votre devanture, je l'ai adorée — elle est à vous, tous droits inclus.<br><br>Le reste de la série vous attend, <b>déjà prête à publier</b>.</p>
+          <div class="dl-gift">
+            <button class="btn-dl" id="dlGift">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Télécharger la photo offerte
+            </button>
+            <div class="dl-note" id="dlNote">Gratuit · Tous droits inclus</div>
+          </div>
+        </div>
+        <div class="frame hero-frame">
+          <span class="tag">DEVANTURE / 01</span>
+          <span class="gift">OFFERTE</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT SHEET -->
+  <section class="card-sheet" style="margin-top:20px">
+    <div class="pad">
+      <div class="sheet-head">
+        <span class="t">Le reste de la série</span>
+        <span class="s">10 HD · 10 stories · 10 posts — <span class="hl">déverrouillés à l'achat</span></span>
+      </div>
+      <div class="grid-sheet" id="sheet"><!-- frames injected --></div>
+    </div>
+  </section>
+
+  <!-- OFFERS -->
+  <section style="margin-top:20px">
+    <div class="eyebrow" style="margin-bottom:14px;padding-left:2px">Récupérez la série</div>
+    <div class="offers">
+
+      <div class="card" data-card>
+        <div class="name">Réseaux</div>
+        <div class="price"><span class="n">39</span><span class="c">€</span></div>
+        <p class="desc">Vos <b>20 visuels prêts à poster</b> : 10 stories + 10 posts, déjà recadrés aux bons formats. Vous publiez, c'est tout.</p>
+        <a class="btn btn-soft" href="#REMPLACER-LIEN-STRIPE" data-pay>Prendre le pack — 39 €</a>
+        <div class="payhint">↑ Branche ici ton lien de paiement (Stripe / Revolut).</div>
+      </div>
+
+      <div class="card hot" data-card>
+        <span class="badge">LE PLUS COMPLET</span>
+        <div class="name">Réseaux + HD</div>
+        <div class="price"><span class="n">49</span><span class="c">€</span></div>
+        <p class="desc">Tout le pack Réseaux, <b>plus vos 10 photos en ultra HD</b> : site web, impression, vitrine, presse — pleine résolution.</p>
+        <div class="nudge">+10 € pour la pleine résolution</div>
+        <a class="btn btn-primary" href="#REMPLACER-LIEN-STRIPE" data-pay>Prendre le pack — 49 €</a>
+        <div class="payhint">↑ Branche ici ton lien de paiement (Stripe / Revolut).</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- UPSELL -->
+  <section class="upsell" style="margin-top:20px">
+    <div>
+      <div class="eyebrow">Aller plus loin</div>
+      <h2>Et si on shootait l'intérieur ?</h2>
+      <p>Votre devanture n'est qu'un début. On capture votre boutique, vos produits, votre univers — une vraie série sur-mesure pour votre marque.</p>
+    </div>
+    <a class="btn btn-shoot" href="mailto:kevin.cardoso@icloud.com?subject=Organisons%20un%20shooting&body=Bonjour%20Kevin%2C%0A%0AJe%20souhaite%20organiser%20un%20shooting.%0A%0ACordialement%2C">Organisons un shooting</a>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-left">
+      <div class="fname">Kevin CARDOSO</div>
+      <div class="ftitle">Photographe</div>
+    </div>
+    <div class="footer-links">
+      <a href="https://www.instagram.com/callme_keo" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".5" fill="currentColor"/></svg>
+        @callme_keo
+      </a>
+      <a href="mailto:kevin.cardoso@icloud.com?subject=Je%20suis%20intéressé%20par%20votre%20travail&body=Bonjour%20Kevin%2C%0A%0AJ'ai%20vu%20votre%20photo%20de%20notre%20devanture%20et%20je%20souhaite%20en%20savoir%20plus.%0A%0ACordialement%2C">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        kevin.cardoso@icloud.com
+      </a>
+      <a href="mentions-legales.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Mentions légales
+      </a>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  // build the locked contact sheet with blur + cadenas
+  var labels = ['01','02','03','04','05','06','07','08','09','10'];
+  var lock = '<div class="frame-img"></div><span class="lock"><svg viewBox="0 0 24 24" fill="none" stroke="#2243C8" stroke-width="1.8"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>';
+  var sheet = document.getElementById('sheet');
+  sheet.innerHTML = labels.map(function(l){
+    return '<div class="frame locked"><span class="tag">'+l+'</span>'+lock+'</div>';
+  }).join('');
+
+  // bouton téléchargement photo offerte
+  document.getElementById('dlGift').addEventListener('click',function(){
+    var note = "DÉMO — ici se trouve ta photo teaser (teaser.jpg).\nEn production, ce bouton pointe vers le fichier dans Cloudflare R2.";
+    var blob = new Blob([note],{type:'text/plain'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'devanture-offerte-DEMO.txt';
+    document.body.appendChild(a); a.click(); a.remove();
+    var note_el = document.getElementById('dlNote');
+    note_el.textContent = '✓ Photo téléchargée — elle est à vous !';
+    note_el.classList.add('show');
+  });
+
+  // demo: pay buttons not yet wired
+  document.querySelectorAll('[data-pay]').forEach(function(a){
+    a.addEventListener('click',function(e){
+      if(a.getAttribute('href').indexOf('#REMPLACER')===0){
+        e.preventDefault();
+        var hint = a.parentElement.querySelector('.payhint');
+        if(hint) hint.classList.add('show');
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
