@@ -1,0 +1,13 @@
+{
+  "slug": "boutique-test",
+  "nom": "Boutique Test",
+  "rue": "",
+  "prix_reseaux": 39,
+  "prix_hd": 49,
+  "lien_stripe_reseaux": "https://buy.stripe.com/test_dRm4gzgyU22W3ml48PaAw01",
+  "lien_stripe_hd": "https://buy.stripe.com/test_5kQfZhgyUePIcWV6gXaAw00",
+  "statut": "envoyé",
+  "date_envoi": "2026-06-15",
+  "date_paiement": null,
+  "pack_achete": null
+}
