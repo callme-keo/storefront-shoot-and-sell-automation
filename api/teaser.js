@@ -1,6 +1,8 @@
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
+const SLUG_REGEX = /^[a-z0-9-]+$/;
+
 const r2 = new S3Client({
   region: 'auto',
   endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
@@ -11,8 +13,13 @@ const r2 = new S3Client({
 });
 
 module.exports = async (req, res) => {
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET');
+    return res.status(405).end('Method Not Allowed');
+  }
+
   const { slug } = req.query;
-  if (!slug) return res.status(400).send('slug manquant');
+  if (!slug || !SLUG_REGEX.test(slug)) return res.status(400).send('slug manquant ou invalide');
 
   const command = new GetObjectCommand({
     Bucket: process.env.CLOUDFLARE_R2_BUCKET,

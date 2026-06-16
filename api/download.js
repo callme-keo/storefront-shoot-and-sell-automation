@@ -4,6 +4,11 @@ const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
+// Validité du lien de téléchargement après l'achat (en jours)
+const JOURS_VALIDITE = 30;
+const PACKS_VALIDES = ['reseaux', 'hd'];
+const SLUG_REGEX = /^[a-z0-9-]+$/;
+
 const r2 = new S3Client({
   region: 'auto',
   endpoint: `https://${process.env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
@@ -25,6 +30,11 @@ module.exports = async (req, res) => {
     return res.status(400).send('Paramètres manquants : session_id, slug, pack requis.');
   }
 
+  // Validation stricte des entrées (défense en profondeur)
+  if (!SLUG_REGEX.test(slug) || !PACKS_VALIDES.includes(pack)) {
+    return res.status(400).send('Paramètres invalides.');
+  }
+
   // Vérification du paiement Stripe
   let session;
   try {
@@ -39,6 +49,15 @@ module.exports = async (req, res) => {
 
   if (session.metadata?.slug !== slug || session.metadata?.pack !== pack) {
     return res.status(403).send('Accès non autorisé.');
+  }
+
+  // Expiration du lien : JOURS_VALIDITE jours après le paiement
+  const ageJours = (Date.now() / 1000 - session.created) / 86400;
+  if (ageJours > JOURS_VALIDITE) {
+    return res.status(410).send(
+      `Ce lien de téléchargement a expiré — il est valable ${JOURS_VALIDITE} jours après l'achat. ` +
+      `Écrivez-moi à kevin.cardoso@icloud.com (ou sur Instagram @callme_keo) et je vous renvoie vos fichiers avec plaisir.`
+    );
   }
 
   // URL signée R2 — expire dans 1 h

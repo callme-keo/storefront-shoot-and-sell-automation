@@ -19,8 +19,9 @@ async function updateAirtable(slug, pack, email, datePaiement) {
   const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY })
     .base(process.env.AIRTABLE_BASE_ID);
   const table = process.env.AIRTABLE_TABLE || 'Clients';
+  const slugSafe = String(slug).replace(/"/g, '\\"');
   const records = await base(table)
-    .select({ filterByFormula: `{slug} = "${slug}"`, maxRecords: 1 })
+    .select({ filterByFormula: `{slug} = "${slugSafe}"`, maxRecords: 1 })
     .firstPage();
   if (!records.length) {
     console.warn(`[webhook] Aucun enregistrement Airtable pour slug="${slug}"`);
