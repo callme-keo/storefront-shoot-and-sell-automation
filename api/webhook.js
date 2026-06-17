@@ -35,9 +35,9 @@ async function updateAirtable(slug, pack, email, datePaiement) {
   });
 }
 
-async function scheduleFollowupEmail(to, pack) {
-  if (!process.env.RESEND_API_KEY) {
-    console.warn('[webhook] RESEND_API_KEY absent — email J+3 non programmé');
+async function scheduleFollowupEmail(to, pack, idempotencyKey) {
+  if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM) {
+    console.warn('[webhook] RESEND_API_KEY ou RESEND_FROM absent — email J+3 non programmé');
     return;
   }
   const resend = new Resend(process.env.RESEND_API_KEY);
@@ -49,16 +49,16 @@ async function scheduleFollowupEmail(to, pack) {
   j3.setDate(j3.getDate() + 3);
 
   await resend.emails.send({
-    from: process.env.RESEND_FROM || 'Kevin CARDOSO <kevin@ton-domaine.fr>',
+    from: process.env.RESEND_FROM,
     replyTo: process.env.RESEND_REPLY_TO || 'kevin.cardoso@icloud.com',
     to,
     subject: 'Avez-vous pu utiliser vos photos ?',
     html: html || `<p>Bonjour,<br><br>J'espère que votre ${packLabel} vous a plu. N'hésitez pas à revenir vers moi.<br><br>Kevin CARDOSO · @callme_keo</p>`,
     scheduledAt: j3.toISOString(),
-  });
+  }, idempotencyKey ? { idempotencyKey } : undefined);
 }
 
-module.exports = async (req, res) => {
+const handler = async (req, res) => {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).end('Method Not Allowed');
@@ -98,10 +98,11 @@ module.exports = async (req, res) => {
     console.error('[webhook] Airtable error :', err.message);
   }
 
-  // Email J+3 — non bloquant
+  // Email J+3 — non bloquant. La clé d'idempotence (id de session) évite
+  // un doublon d'email si Stripe rejoue l'événement checkout.session.completed.
   if (email) {
     try {
-      await scheduleFollowupEmail(email, pack);
+      await scheduleFollowupEmail(email, pack, `j3-${session.id}`);
       console.log(`[webhook] Email J+3 programmé pour ${email}`);
     } catch (err) {
       console.error('[webhook] Resend error :', err.message);
@@ -110,3 +111,10 @@ module.exports = async (req, res) => {
 
   return res.json({ received: true });
 };
+
+module.exports = handler;
+
+// Stripe vérifie la signature sur le corps brut (non parsé).
+// On désactive donc le bodyParser automatique de Vercel, sinon le stream
+// est déjà consommé et constructEvent échoue à chaque appel.
+module.exports.config = { api: { bodyParser: false } };

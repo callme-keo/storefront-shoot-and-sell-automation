@@ -138,7 +138,7 @@
   .paid .txt b{color:var(--accent);font-weight:700}
   .deliver .files span{color:var(--accent);font-weight:700}
 
-  /* footer stylé — identique à offre-devanture */
+  /* footer stylé — identique à offer.html */
   .site-footer{
     max-width:600px;margin:40px auto 0;
     background:var(--ink);
@@ -247,11 +247,11 @@
           <div class="grid">
             <div class="full">
               <label class="f">Raison sociale</label>
-              <input id="cName" value="Épicerie Fine du Marché">
+              <input id="cName" value="">
             </div>
             <div class="full">
               <label class="f">Adresse</label>
-              <input id="cAddr" value="8 place du Marché, 75011 Paris">
+              <input id="cAddr" value="">
             </div>
             <div>
               <label class="f">SIREN / SIRET (optionnel)</label>
@@ -315,7 +315,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
         kevin.cardoso@icloud.com
       </a>
-      <a href="mentions-legales.html">
+      <a href="/legal-notice">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         Mentions légales
       </a>
@@ -377,12 +377,17 @@
     document.getElementById('dlGot').classList.add('show');
   });
 
-  // Charger le nom de la boutique depuis data.json
+  // Charger les infos de la boutique depuis data.json
   if (slug) {
     fetch('/clients/' + slug + '/data.json')
       .then(function(r){ return r.ok ? r.json() : null; })
       .then(function(d){
-        if (d && d.nom) document.getElementById('shopName').textContent = d.nom;
+        if (!d) return;
+        if (d.nom) {
+          document.getElementById('shopName').textContent = d.nom;
+          document.getElementById('cName').value = d.nom;   // pré-remplit la facture
+        }
+        if (d.rue) document.getElementById('cAddr').value = d.rue;
       });
   }
 

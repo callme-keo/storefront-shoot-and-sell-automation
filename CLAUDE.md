@@ -64,9 +64,10 @@ J+3 → Resend envoie l'email de suivi automatiquement
 ├── README.md
 ├── .gitignore
 ├── LICENSE
-├── offre-devanture.html        ✅ page d'offre (Poppins + IBM Plex Mono + bleu #2243C8)
-├── livraison-facture.html      ✅ page livraison + facture PDF (dynamique via ?pack=)
-├── mentions-legales.html       ✅ mentions légales + CGV + RGPD
+├── offer.html                  ✅ page d'offre (Poppins + IBM Plex Mono + bleu #2243C8)
+├── delivery.html               ✅ page livraison + facture PDF (dynamique via ?pack=)
+├── legal-notice.html           ✅ mentions légales + CGV + RGPD
+├── vercel.json                 ✅ URLs propres : /[slug] → offer.html?slug=[slug]
 └── clients/
     └── [slug]/
         ├── data.json
@@ -87,8 +88,8 @@ Script Node.js lancé en local sur le Mac de Kevin.
 **Arguments :** `slug` + `"Nom Boutique"`
 **Actions :**
 - Appelle l'API Stripe pour créer 2 Payment Links :
-  - Pack Réseaux 39€ → `success_url: https://[domaine]/livraison-facture.html?pack=reseaux&slug=[slug]`
-  - Pack HD 49€ → `success_url: https://[domaine]/livraison-facture.html?pack=hd&slug=[slug]`
+  - Pack Réseaux 39€ → redirige vers `https://[domaine]/delivery?pack=reseaux&slug=[slug]&session_id=...`
+  - Pack HD 49€ → redirige vers `https://[domaine]/delivery?pack=hd&slug=[slug]&session_id=...`
 - Génère `clients/[slug]/data.json` avec les liens Stripe auto
 - Crée les dossiers `photos/`, `stories/`, `posts/`
 - Git add + commit + push automatique
@@ -103,21 +104,33 @@ Fonction Vercel serverless — écoute les événements Stripe.
 
 **Événement écouté :** `checkout.session.completed`
 **Actions :**
-- Vérifie la signature Stripe (STRIPE_WEBHOOK_SECRET)
-- Récupère `slug` et `pack` depuis les metadata du Payment Link
-- Génère un token signé (JWT ou UUID) pour débloquer le .zip sur R2
-- Met à jour Airtable : statut → `payé`, date paiement, pack acheté
-- Appelle Resend pour programmer l'email J+3
+- Vérifie la signature Stripe (STRIPE_WEBHOOK_SECRET) sur le **corps brut** — le webhook exporte `config.api.bodyParser = false`, sinon Vercel consomme le stream et la vérif échoue à chaque appel
+- Récupère `slug` et `pack` depuis les metadata de la session
+- Met à jour Airtable : statut → `payé`, date paiement, pack acheté, email client
+- Programme l'email J+3 via Resend (clé d'idempotence = id de session → pas de doublon si Stripe rejoue l'événement)
+
+> Pas de token signé : c'est `api/download.js` qui re-vérifie la session Stripe au moment du téléchargement (plus simple et plus robuste qu'un JWT).
 
 ### 3. `api/download.js`
 Fonction Vercel serverless — sert le .zip de manière sécurisée.
 
 **Fonctionnement :**
-- Reçoit `?token=xxx&slug=yyy&pack=zzz`
-- Vérifie que le token est valide (généré par le webhook après paiement)
-- Génère une URL signée Cloudflare R2 (expire dans 1h)
+- Reçoit `?session_id=xxx&slug=yyy&pack=zzz`
+- Re-vérifie la session Stripe : `payment_status === 'paid'` + metadata `slug`/`pack` cohérents
+- Refuse si le lien a plus de **30 jours** (expiration après l'achat)
+- Génère une URL signée Cloudflare R2 sur la clé `[slug]/[pack].zip` (expire dans 1h)
 - Redirige vers l'URL signée → téléchargement immédiat
 - Jamais d'URL R2 en clair exposée côté client
+
+### 3bis. `api/teaser.js`
+Fonction Vercel serverless — sert la photo offerte.
+
+**Fonctionnement :**
+- Reçoit `?slug=yyy`
+- Génère une URL signée R2 sur la clé `[slug]/photos/teaser.jpg` (expire dans 1h)
+- Sert à la fois le bouton « photo offerte » et le visuel hero de la page d'offre
+
+**Arborescence R2 attendue par client :** `[slug]/reseaux.zip`, `[slug]/hd.zip`, `[slug]/photos/teaser.jpg`
 
 ### 4. `.env` (ne jamais commiter — dans .gitignore)
 ```
@@ -189,7 +202,8 @@ Statuts : `envoyé` | `payé` | `upsell` | `relancé`
 - **Email :** kevin.cardoso@icloud.com
 - **Instagram :** @callme_keo
 - **Statut :** Micro-entrepreneur (EI), activité photographie commerciale
-- **SIRET :** [À REMPLIR]
+- **SIRET :** 982 019 374 00015
+- **Adresse :** 18 Route de Calzins, 12450 LUC-LA-PRIMAUBE
 - **TVA :** Non applicable, art. 293 B du CGI
 
 ---
@@ -207,7 +221,7 @@ Statuts : `envoyé` | `payé` | `upsell` | `relancé`
 ## Règles absolues
 
 - Jamais de clé API en dur — toujours `.env`
-- Jamais d'URL R2 en clair côté client — toujours des tokens signés
+- Jamais d'URL R2 en clair côté client — toujours des URL signées (générées dans `api/download.js` et `api/teaser.js`)
 - Jamais une page par client — routing dynamique via slug
 - Jamais commiter les photos — bloquées dans `.gitignore`
 - Toujours vérifier la signature Stripe dans le webhook
@@ -216,7 +230,7 @@ Statuts : `envoyé` | `payé` | `upsell` | `relancé`
 
 ## Ordre de build ce soir
 
-1. `npm init` + installer les dépendances (`stripe` `simple-git` `dotenv` `jsonwebtoken` `resend` `airtable`)
+1. `npm init` + installer les dépendances (`stripe` `simple-git` `dotenv` `resend` `airtable` `@aws-sdk/client-s3` `@aws-sdk/s3-request-presigner`)
 2. Créer `.env` avec toutes les clés
 3. Coder `scripts/nouveau-client.js`
 4. Tester en mode Stripe test avec une vraie boutique fictive

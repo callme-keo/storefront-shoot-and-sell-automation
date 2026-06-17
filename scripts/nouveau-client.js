@@ -40,7 +40,7 @@ async function createPaymentLink(packLabel, cents, pack) {
     after_completion: {
       type: 'redirect',
       redirect: {
-        url: `${DOMAIN}/livraison-facture.html?pack=${pack}&slug=${slug}&session_id={CHECKOUT_SESSION_ID}`,
+        url: `${DOMAIN}/delivery?pack=${pack}&slug=${slug}&session_id={CHECKOUT_SESSION_ID}`,
       },
     },
   });
@@ -107,8 +107,8 @@ async function main() {
   console.log('    ✅ Déployé — Vercel en ligne dans ~30 s');
 
   // Résultat terminal
-  const pageUrl = `${DOMAIN}/offre-devanture.html?slug=${slug}`;
-  const teaserUrl = `${DOMAIN}/api/teaser?slug=${slug}`;
+  const pageUrl = `${DOMAIN}/${slug}`;
+  const teaserUrl = `${DOMAIN}/${slug}/free-photo`;
 
   console.log(`
 ╔══════════════════════════════════════════════════════════╗
