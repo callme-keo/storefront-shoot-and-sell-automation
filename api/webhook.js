@@ -41,20 +41,22 @@ async function scheduleFollowupEmail(to, pack, idempotencyKey) {
     return;
   }
   const resend = new Resend(process.env.RESEND_API_KEY);
-  const tplPath = path.join(__dirname, '..', 'emails', 'suivi-j3.html');
+  const tplPath = path.join(__dirname, '..', 'emails', 'suivi-j21.html');
   const html = fs.existsSync(tplPath) ? fs.readFileSync(tplPath, 'utf8') : '';
   const packLabel = pack === 'hd' ? 'Pack Réseaux + HD' : 'Pack Réseaux';
 
-  const j3 = new Date();
-  j3.setDate(j3.getDate() + 3);
+  // Suivi envoyé 3 semaines après l'achat : le client a eu le temps de publier
+  // ses photos et d'en mesurer les retours avant qu'on propose d'aller plus loin.
+  const dateSuivi = new Date();
+  dateSuivi.setDate(dateSuivi.getDate() + 21);
 
   await resend.emails.send({
     from: process.env.RESEND_FROM,
     replyTo: process.env.RESEND_REPLY_TO || 'contact@akowinstudios.com',
     to,
     subject: 'Vos photos',
-    html: html || `<p>Bonjour,<br><br>J'espère que votre ${packLabel} vous a plu. N'hésitez pas à revenir vers moi.<br><br>Kevin CARDOSO · @callme_keo</p>`,
-    scheduledAt: j3.toISOString(),
+    html: html || `<p>Bonjour,<br><br>J'espère que votre ${packLabel} vous a plu. N'hésitez pas à revenir vers moi.<br><br>Kevin (Keo), AKOWIN Studios</p>`,
+    scheduledAt: dateSuivi.toISOString(),
   }, idempotencyKey ? { idempotencyKey } : undefined);
 }
 
@@ -98,12 +100,12 @@ const handler = async (req, res) => {
     console.error('[webhook] Airtable error :', err.message);
   }
 
-  // Email J+3 — non bloquant. La clé d'idempotence (id de session) évite
+  // Email J+21 — non bloquant. La clé d'idempotence (id de session) évite
   // un doublon d'email si Stripe rejoue l'événement checkout.session.completed.
   if (email) {
     try {
-      await scheduleFollowupEmail(email, pack, `j3-${session.id}`);
-      console.log(`[webhook] Email J+3 programmé pour ${email}`);
+      await scheduleFollowupEmail(email, pack, `j21-${session.id}`);
+      console.log(`[webhook] Email J+21 programmé pour ${email}`);
     } catch (err) {
       console.error('[webhook] Resend error :', err.message);
     }
