@@ -118,23 +118,22 @@ async function main() {
 📎  Page client :
     ${pageUrl}
 
-💳  Pack Réseaux  (39 €) : ${linkReseaux.url}
-💳  Pack HD       (49 €) : ${linkHD.url}
+🖼️  Photo offerte (à joindre au DM) :
+    ${teaserUrl}
+
+💳  Pack Réseaux       (39 €) : ${linkReseaux.url}
+💳  Pack Réseaux + HD  (49 €) : ${linkHD.url}
 
 ──────────────────────────────────────────────────────────
-💬  DM Instagram — copie-colle ce texte :
+💬  DM Instagram à copier-coller :
 ──────────────────────────────────────────────────────────
 
-Bonjour ! Comme promis, voici votre photo offerte :
-${teaserUrl}
+J'ai adoré votre devanture. Je l'ai photographiée, cette photo est pour vous, libre de droits.
 
-J'ai créé une page personnalisée pour vous :
+J'ai réuni le reste de la série sur cette page dédiée (déverrouillable à l'achat) :
 ${pageUrl}
 
-Deux formules disponibles : réseaux sociaux (39 €) ou HD complet (49 €).
-N'hésitez pas si vous avez des questions 🙌
-
-— Kevin (@callme_keo)
+Bien à vous, Kevin (Keo)
 
 ──────────────────────────────────────────────────────────
 `);
