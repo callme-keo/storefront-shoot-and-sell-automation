@@ -55,7 +55,7 @@ async function scheduleFollowupEmail(to, pack, idempotencyKey) {
     replyTo: process.env.RESEND_REPLY_TO || 'kevin@akowinstudios.com',
     to,
     subject: 'Vos photos',
-    html: html || `<p>Bonjour,<br><br>J'espère que votre ${packLabel} vous a plu. N'hésitez pas à revenir vers moi.<br><br>Kevin (Keo), AKOWIN Studios</p>`,
+    html: html || `<p>Bonjour,<br><br>J'espère que votre ${packLabel} vous a plu. N'hésitez pas à revenir vers moi.<br><br>Kevin CARDOSO, AKOWIN Studios</p>`,
     scheduledAt: dateSuivi.toISOString(),
   }, idempotencyKey ? { idempotencyKey } : undefined);
 }
