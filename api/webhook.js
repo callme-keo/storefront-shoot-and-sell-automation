@@ -52,7 +52,7 @@ async function scheduleFollowupEmail(to, pack, idempotencyKey) {
 
   await resend.emails.send({
     from: process.env.RESEND_FROM,
-    replyTo: process.env.RESEND_REPLY_TO || 'contact@akowinstudios.com',
+    replyTo: process.env.RESEND_REPLY_TO || 'kevin@akowinstudios.com',
     to,
     subject: 'Vos photos',
     html: html || `<p>Bonjour,<br><br>J'espère que votre ${packLabel} vous a plu. N'hésitez pas à revenir vers moi.<br><br>Kevin (Keo), AKOWIN Studios</p>`,

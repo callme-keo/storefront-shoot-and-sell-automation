@@ -56,7 +56,7 @@ module.exports = async (req, res) => {
   if (ageJours > JOURS_VALIDITE) {
     return res.status(410).send(
       `Ce lien de téléchargement a expiré — il est valable ${JOURS_VALIDITE} jours après l'achat. ` +
-      `Écrivez-moi à contact@akowinstudios.com (ou sur Instagram @callme_keo) et je vous renvoie vos fichiers avec plaisir.`
+      `Écrivez-moi à kevin@akowinstudios.com (ou sur Instagram @callme_keo) et je vous renvoie vos fichiers avec plaisir.`
     );
   }
 
