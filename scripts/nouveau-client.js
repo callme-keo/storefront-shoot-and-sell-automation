@@ -133,7 +133,7 @@ J'ai adoré votre devanture. Je l'ai photographiée, cette photo est pour vous, 
 J'ai réuni le reste de la série sur cette page dédiée (déverrouillable à l'achat) :
 ${pageUrl}
 
-Bien à vous, Kevin CARDOSO, AKOWIN Studios
+Bien à vous, Kévin Cardoso (@callme_keo), Photographe & AKOWIN Studios Founder
 
 ──────────────────────────────────────────────────────────
 ✉️  Email de 1er contact — Objet : J'ai photographié votre devanture
@@ -147,7 +147,7 @@ J'ai réuni la photo et le reste de la série sur cette page dédiée (déverrou
 ${pageUrl}
 
 Bien à vous,
-Kevin CARDOSO, AKOWIN Studios
+Kévin Cardoso (@callme_keo), Photographe & AKOWIN Studios Founder
 
 ──────────────────────────────────────────────────────────
 `);

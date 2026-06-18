@@ -89,7 +89,7 @@ ${pageUrl}
 
 Je reste à votre disposition pour la moindre question.
 
-Bien à vous, Kevin CARDOSO, AKOWIN Studios
+Bien à vous, Kévin Cardoso (@callme_keo), Photographe & AKOWIN Studios Founder
 
 ──────────────────────────────────────────────────────────
 ✉️  Email de relance — Objet : Votre série photo est toujours disponible
@@ -103,7 +103,7 @@ ${pageUrl}
 Je reste à votre disposition pour toute question.
 
 Bien à vous,
-Kevin CARDOSO, AKOWIN Studios
+Kévin Cardoso (@callme_keo), Photographe & AKOWIN Studios Founder
 
 ──────────────────────────────────────────────────────────
 `);
