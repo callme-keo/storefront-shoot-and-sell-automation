@@ -141,7 +141,7 @@ Bien à vous, Kevin (Keo), AKOWIN Studios
 
 Bonjour,
 
-Je suis Kevin, photographe chez AKOWIN Studios. En passant devant ${nom}, j'ai adoré votre devanture, je l'ai photographiée. Cette photo est pour vous, libre de droits.
+En passant devant ${nom}, j'ai adoré votre devanture, je l'ai photographiée. Cette photo est pour vous, libre de droits.
 
 J'ai réuni la photo et le reste de la série sur cette page dédiée (déverrouillable à l'achat) :
 ${pageUrl}
