@@ -133,7 +133,7 @@ J'ai adoré votre devanture. Je l'ai photographiée, cette photo est pour vous, 
 J'ai réuni le reste de la série sur cette page dédiée (déverrouillable à l'achat) :
 ${pageUrl}
 
-Bien à vous, Kevin (Keo)
+Bien à vous, Kevin (Keo), AKOWIN Studios
 
 ──────────────────────────────────────────────────────────
 `);
