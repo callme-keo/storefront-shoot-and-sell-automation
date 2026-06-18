@@ -42,7 +42,10 @@ async function scheduleFollowupEmail(to, pack, idempotencyKey) {
   }
   const resend = new Resend(process.env.RESEND_API_KEY);
   const tplPath = path.join(__dirname, '..', 'emails', 'suivi-j21.html');
-  const html = fs.existsSync(tplPath) ? fs.readFileSync(tplPath, 'utf8') : '';
+  const rawHtml = fs.existsSync(tplPath) ? fs.readFileSync(tplPath, 'utf8') : '';
+  // Les images d'email exigent une URL absolue : on injecte le domaine de prod.
+  const domain = (process.env.VERCEL_DOMAIN || '').replace(/\/$/, '');
+  const html = rawHtml.replace(/\{\{DOMAIN\}\}/g, domain);
   const packLabel = pack === 'hd' ? 'Pack Réseaux + HD' : 'Pack Réseaux';
 
   // Suivi envoyé 3 semaines après l'achat : le client a eu le temps de publier

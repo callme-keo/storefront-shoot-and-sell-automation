@@ -363,13 +363,19 @@
   if(dLabel) dLabel.value = p.designa;
   if(dPrice) dPrice.value = p.prix;
 
-  // --- dates / number prefill ---
+  // --- dates / numéro unique ---
   var now = new Date();
   var fr = now.toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
-  var seq = '0001';
+  var zp = function(n){ return String(n).padStart(2,'0'); };
+  // Jeton unique par commande : dérivé de la session Stripe si dispo, sinon du slug.
+  var token = session_id ? session_id.slice(-5).toUpperCase()
+            : (slug ? slug.replace(/[^a-z0-9]/gi,'').slice(0,6).toUpperCase()
+                    : zp(now.getHours())+zp(now.getMinutes()));
+  var mmdd = zp(now.getMonth()+1)+zp(now.getDate());
   document.getElementById('todayTop').textContent = fr;
   document.getElementById('dDate').value = fr;
-  document.getElementById('dNum').value = now.getFullYear()+'-'+seq;
+  document.getElementById('dNum').value = now.getFullYear()+'-'+mmdd+'-'+token; // ex : 2026-0618-AB12C
+  document.getElementById('orderRef').textContent = 'CMD-'+token;
 
   // --- téléchargement sécurisé via R2 ---
   document.getElementById('dlBtn').addEventListener('click',function(){
