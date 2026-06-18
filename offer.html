@@ -268,6 +268,18 @@
   var params = new URLSearchParams(window.location.search);
   var slug = params.get('slug');
 
+  // Boutons de paiement désactivés tant que les vrais liens Stripe ne sont pas
+  // chargés depuis data.json — évite un clic dans le vide sur le placeholder.
+  var payBtns = document.querySelectorAll('[data-pay]');
+  function setPayEnabled(on){
+    payBtns.forEach(function(b){
+      b.style.pointerEvents = on ? '' : 'none';
+      b.style.opacity = on ? '' : '.5';
+      b.setAttribute('aria-disabled', on ? 'false' : 'true');
+    });
+  }
+  setPayEnabled(false);
+
   // Bouton photo offerte
   document.getElementById('dlGift').addEventListener('click', function(){
     if (slug) {
@@ -294,11 +306,11 @@
         heroFrame.style.backgroundPosition = 'center';
       }
 
-      // Brancher les liens de paiement Stripe
-      var payBtns = document.querySelectorAll('[data-pay]');
-      if (payBtns.length >= 2) {
+      // Brancher les liens de paiement Stripe — et seulement alors réactiver
+      if (payBtns.length >= 2 && d.lien_stripe_reseaux && d.lien_stripe_hd) {
         payBtns[0].href = d.lien_stripe_reseaux;
         payBtns[1].href = d.lien_stripe_hd;
+        setPayEnabled(true);
       }
     });
 })();
