@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "nouveau-client": "node scripts/nouveau-client.js",
+    "upload-r2": "node scripts/upload-r2.js",
     "relance": "node scripts/relance.js",
     "setup-airtable": "node scripts/setup-airtable.js"
   },

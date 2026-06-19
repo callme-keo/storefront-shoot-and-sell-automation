@@ -3,7 +3,7 @@
   "trailingSlash": false,
   "rewrites": [
     { "source": "/:slug/free-photo", "destination": "/api/teaser?slug=:slug" },
-    { "source": "/:slug", "destination": "/offer.html?slug=:slug" }
+    { "source": "/:slug", "destination": "/offer?slug=:slug" }
   ],
   "headers": [
     {
