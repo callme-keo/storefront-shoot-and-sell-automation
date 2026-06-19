@@ -27,12 +27,23 @@ async function updateAirtable(slug, pack, email, datePaiement) {
     console.warn(`[webhook] Aucun enregistrement Airtable pour slug="${slug}"`);
     return;
   }
-  await base(table).update(records[0].id, {
-    Statut: 'payé',
-    'Date paiement': datePaiement,
-    'Pack acheté': pack,
-    'Email client': email,
-  });
+
+  const packLabel = pack === 'hd' ? 'Réseaux + HD' : 'Réseaux';
+  const dateJ21 = new Date();
+  dateJ21.setDate(dateJ21.getDate() + 21);
+
+  // typecast: true → crée au besoin les options de listes déroulantes manquantes.
+  await base(table).update([{
+    id: records[0].id,
+    fields: {
+      Statut: 'Payé',
+      'Date paiement': datePaiement,
+      'Pack acheté': packLabel,
+      'Email confirmé': email,
+      'J+21 programmé': true,
+      'Date J+21 prévue': dateJ21.toISOString().split('T')[0],
+    },
+  }], { typecast: true });
 }
 
 async function scheduleFollowupEmail(to, pack, idempotencyKey) {

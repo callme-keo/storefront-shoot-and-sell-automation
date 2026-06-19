@@ -14,6 +14,19 @@ if (!slug || !nom) {
   process.exit(1);
 }
 
+// Le slug sert de clé partout (R2, URL, download.js qui n'accepte que [a-z0-9-]).
+// On refuse tout slug non conforme plutôt que de créer un client silencieusement cassé.
+const SLUG_REGEX = /^[a-z0-9-]+$/;
+const SLUGS_RESERVES = ['delivery', 'legal-notice', 'assets', 'logo', 'api', 'clients'];
+if (!SLUG_REGEX.test(slug)) {
+  console.error(`\n❌  Slug invalide : « ${slug} ». Uniquement minuscules, chiffres et tirets (ex : epicerie-du-marche).\n`);
+  process.exit(1);
+}
+if (SLUGS_RESERVES.includes(slug)) {
+  console.error(`\n❌  Slug réservé : « ${slug} » entre en collision avec une route du site. Choisis-en un autre.\n`);
+  process.exit(1);
+}
+
 if (!process.env.STRIPE_SECRET_KEY || !process.env.VERCEL_DOMAIN) {
   console.error('\n❌  .env manquant ou incomplet — vérifie STRIPE_SECRET_KEY et VERCEL_DOMAIN.\n');
   process.exit(1);
@@ -62,7 +75,9 @@ async function main() {
   ]);
   console.log('    ✅ Liens créés');
 
-  // data.json
+  // data.json — UNIQUEMENT ce dont la page publique a besoin.
+  // Tout le suivi (statut, dates, paiement, contacts) vit dans Airtable,
+  // source de vérité unique. data.json est public : on n'y met rien d'autre.
   const today = new Date().toISOString().split('T')[0];
   const data = {
     slug,
@@ -72,36 +87,36 @@ async function main() {
     prix_hd: 49,
     lien_stripe_reseaux: linkReseaux.url,
     lien_stripe_hd: linkHD.url,
-    statut: 'envoyé',
-    date_envoi: today,
-    date_paiement: null,
-    pack_achete: null,
   };
   fs.writeFileSync(path.join(clientDir, 'data.json'), JSON.stringify(data, null, 2));
   console.log('    ✅ data.json généré');
 
-  // Airtable
+  // Airtable — fiche créée au statut « Créé » (l'envoi du DM/mail est manuel).
+  // typecast: true → crée au besoin les options de listes déroulantes manquantes.
   if (process.env.AIRTABLE_API_KEY && process.env.AIRTABLE_BASE_ID) {
     try {
       const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY })
         .base(process.env.AIRTABLE_BASE_ID);
-      await base(process.env.AIRTABLE_TABLE || 'Clients').create({
-        slug,
-        Nom: nom,
-        Statut: 'envoyé',
-        'Date envoi': today,
-        'Lien Stripe Réseaux': linkReseaux.url,
-        'Lien Stripe HD': linkHD.url,
-      });
-      console.log('    ✅ Airtable mis à jour');
+      await base(process.env.AIRTABLE_TABLE || 'Clients').create([{
+        fields: {
+          slug,
+          Nom: nom,
+          Statut: 'Créé',
+          'Date création': today,
+          Page: `${DOMAIN}/${slug}`,
+          'Lien Stripe Réseaux': linkReseaux.url,
+          'Lien Stripe HD': linkHD.url,
+        },
+      }], { typecast: true });
+      console.log('    ✅ Fiche Airtable créée');
     } catch (e) {
-      console.warn(`    ⚠️  Airtable ignoré (table non configurée ?) : ${e.message}`);
+      console.warn(`    ⚠️  Airtable ignoré (colonnes manquantes ?) : ${e.message}`);
     }
   }
 
-  // Git push → Vercel redéploie
+  // Git push → Vercel redéploie (on ne pousse QUE le nouveau client, rien d'autre)
   console.log('\n📤  Push sur GitHub…');
-  await git.add('.');
+  await git.add(`clients/${slug}`);
   await git.commit(`client: ${slug} — ${nom}`);
   await git.push('origin', 'main');
   console.log('    ✅ Déployé — Vercel en ligne dans ~30 s');

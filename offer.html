@@ -26,12 +26,6 @@
   .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
   .accent{color:var(--accent)}
 
-  .ribbon{
-    border:1px dashed var(--accent);background:var(--accent-2);color:var(--accent);
-    font-family:'IBM Plex Mono',monospace;font-size:11.5px;padding:8px 14px;border-radius:6px;margin-bottom:18px;
-  }
-  .ribbon b{font-weight:700}
-
   .card-sheet{background:var(--paper);border:1px solid var(--line);border-radius:10px;
     box-shadow:0 18px 44px -30px rgba(20,18,12,.5);overflow:hidden}
   .pad{padding:34px 38px}
@@ -107,8 +101,6 @@
   .btn-primary:hover{background:#0a0a0a}
   .btn-soft{background:var(--accent-2);color:var(--accent);border:1px solid transparent}
   .btn-soft:hover{border-color:#0a0a0a;color:#0a0a0a}
-  .payhint{display:none;margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--muted)}
-  .payhint.show{display:block}
 
   /* upsell */
   .upsell{margin-top:16px;background:var(--ink);color:#F4F1EA;border-radius:10px;padding:30px 34px;
@@ -208,8 +200,7 @@
         <div class="name">Réseaux</div>
         <div class="price"><span class="n">39</span><span class="c">€</span></div>
         <p class="desc">Vos <b>20 visuels prêts à publier</b> : 10 stories + 10 posts, recadrés aux bons formats. Vous n'avez plus qu'à poster.</p>
-        <a class="btn btn-soft" href="#REMPLACER-LIEN-STRIPE" data-pay>Prendre le pack à 39 €</a>
-        <div class="payhint">↑ Branche ici ton lien de paiement (Stripe / Revolut).</div>
+        <a class="btn btn-soft" href="#" data-pay>Prendre le pack à 39 €</a>
       </div>
 
       <div class="card hot" data-card>
@@ -218,8 +209,7 @@
         <div class="price"><span class="n">49</span><span class="c">€</span></div>
         <p class="desc">Le Pack Réseaux, <b>plus toutes vos photos en haute définition</b> : idéales pour votre site, l'impression, votre vitrine ou la presse.</p>
         <div class="nudge">+10 € pour la pleine résolution</div>
-        <a class="btn btn-primary" href="#REMPLACER-LIEN-STRIPE" data-pay>Prendre le pack à 49 €</a>
-        <div class="payhint">↑ Branche ici ton lien de paiement (Stripe / Revolut).</div>
+        <a class="btn btn-primary" href="#" data-pay>Prendre le pack à 49 €</a>
       </div>
 
     </div>
@@ -296,27 +286,44 @@
 
   if (!slug) return;
 
-  // Charger les données du client
-  fetch('/clients/' + slug + '/data.json')
-    .then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(d){
-      if (!d) return;
+  // Si les données ne chargent pas (réseau), on n'abandonne pas le client :
+  // on affiche un contact direct plutôt que des boutons inertes.
+  function showContactFallback(){
+    if (document.getElementById('loadErr')) return;
+    var box = document.querySelector('.offers');
+    if (!box) return;
+    var p = document.createElement('p');
+    p.id = 'loadErr';
+    p.style.cssText = "font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent);margin:16px 2px 0;text-align:center";
+    p.innerHTML = 'Souci de chargement ? Écrivez-moi à <a href="mailto:kevin@akowinstudios.com" style="color:var(--accent)">kevin@akowinstudios.com</a> et je vous envoie le lien.';
+    box.parentNode.appendChild(p);
+  }
 
-      // Photo teaser en fond de la frame hero
-      var heroFrame = document.querySelector('.hero-frame');
-      if (heroFrame) {
-        heroFrame.style.backgroundImage = 'url(/api/teaser?slug=' + slug + ')';
-        heroFrame.style.backgroundSize = 'cover';
-        heroFrame.style.backgroundPosition = 'center';
-      }
-
-      // Brancher les liens de paiement Stripe — et seulement alors réactiver
-      if (payBtns.length >= 2 && d.lien_stripe_reseaux && d.lien_stripe_hd) {
-        payBtns[0].href = d.lien_stripe_reseaux;
-        payBtns[1].href = d.lien_stripe_hd;
-        setPayEnabled(true);
-      }
-    });
+  // Charger les données du client (avec une nouvelle tentative si échec)
+  function loadClient(attempt){
+    fetch('/clients/' + slug + '/data.json', { cache: 'no-store' })
+      .then(function(r){ if (!r.ok) throw new Error('not found'); return r.json(); })
+      .then(function(d){
+        // Photo teaser en fond de la frame hero
+        var heroFrame = document.querySelector('.hero-frame');
+        if (heroFrame) {
+          heroFrame.style.backgroundImage = 'url(/api/teaser?slug=' + slug + ')';
+          heroFrame.style.backgroundSize = 'cover';
+          heroFrame.style.backgroundPosition = 'center';
+        }
+        // Brancher les liens de paiement Stripe — et seulement alors réactiver
+        if (payBtns.length >= 2 && d.lien_stripe_reseaux && d.lien_stripe_hd) {
+          payBtns[0].href = d.lien_stripe_reseaux;
+          payBtns[1].href = d.lien_stripe_hd;
+          setPayEnabled(true);
+        }
+      })
+      .catch(function(){
+        if (attempt < 2) { setTimeout(function(){ loadClient(attempt + 1); }, 1500); }
+        else { showContactFallback(); }
+      });
+  }
+  loadClient(1);
 })();
 </script>
 </body>

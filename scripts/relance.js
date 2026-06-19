@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
 
-const simpleGit = require('simple-git');
 const Airtable = require('airtable');
 const fs = require('fs');
 const path = require('path');
@@ -21,7 +20,6 @@ if (!process.env.VERCEL_DOMAIN) {
 const DOMAIN = process.env.VERCEL_DOMAIN.replace(/\/$/, '');
 const ROOT = path.join(__dirname, '..');
 const dataPath = path.join(ROOT, 'clients', slug, 'data.json');
-const git = simpleGit(ROOT);
 
 async function main() {
   if (!fs.existsSync(dataPath)) {
@@ -30,17 +28,12 @@ async function main() {
   }
 
   const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-
-  // On ne relance pas un client qui a déjà payé.
-  if (data.statut === 'payé') {
-    console.error(`\n❌  ${data.nom} a déjà payé (statut « payé ») — pas de relance.\n`);
-    process.exit(1);
-  }
-
   const today = new Date().toISOString().split('T')[0];
   const pageUrl = `${DOMAIN}/${slug}`;
 
-  // Airtable — statut → relancé (non bloquant)
+  // Airtable = source de vérité. On y lit le statut (pour ne PAS relancer un
+  // client qui a déjà payé) puis on passe la fiche en « Relancé ».
+  // typecast: true → crée au besoin l'option de liste déroulante manquante.
   if (process.env.AIRTABLE_API_KEY && process.env.AIRTABLE_BASE_ID) {
     try {
       const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY })
@@ -50,28 +43,29 @@ async function main() {
       const records = await base(table)
         .select({ filterByFormula: `{slug} = "${slugSafe}"`, maxRecords: 1 })
         .firstPage();
+
       if (records.length) {
-        await base(table).update(records[0].id, { Statut: 'relancé', 'Date relance': today });
-        console.log('    ✅ Airtable : statut → relancé');
+        const statut = String(records[0].get('Statut') || '').toLowerCase();
+        if (statut === 'payé') {
+          console.error(`\n❌  ${data.nom} a déjà payé — pas de relance.\n`);
+          process.exit(1);
+        }
+        await base(table).update([{
+          id: records[0].id,
+          fields: { Statut: 'Relancé', 'Date relance': today },
+        }], { typecast: true });
+        console.log('    ✅ Airtable : statut → Relancé');
       } else {
-        console.warn(`    ⚠️  Aucun enregistrement Airtable pour slug="${slug}"`);
+        console.warn(`    ⚠️  Aucune fiche Airtable pour slug="${slug}" (relance quand même).`);
       }
     } catch (e) {
       console.warn(`    ⚠️  Airtable ignoré : ${e.message}`);
     }
+  } else {
+    console.warn('    ⚠️  Airtable non configuré — statut de paiement non vérifié.');
   }
 
-  // data.json — statut local + date de relance, puis push (garde le repo à jour)
-  data.statut = 'relancé';
-  data.date_relance = today;
-  fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
-
-  await git.add(`clients/${slug}/data.json`);
-  await git.commit(`relance: ${slug} — ${data.nom}`);
-  await git.push('origin', 'main');
-  console.log('    ✅ data.json mis à jour et poussé');
-
-  // Textes prêts à coller
+  // Textes prêts à coller (envoi manuel par Kevin)
   console.log(`
 ╔══════════════════════════════════════════════════════════╗
 ║  🔔  Relance : ${data.nom.padEnd(42)}  ║
