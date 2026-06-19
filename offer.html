@@ -260,7 +260,10 @@
   }).join('');
 
   var params = new URLSearchParams(window.location.search);
-  var slug = params.get('slug');
+  // La réécriture Vercel /:slug est transparente : l'URL du navigateur reste
+  // « /chymos » (sans ?slug=). On lit donc le slug depuis le chemin, avec
+  // repli sur le query param (accès direct à /offer?slug=… en test).
+  var slug = params.get('slug') || window.location.pathname.split('/').filter(Boolean)[0] || null;
 
   // Boutons de paiement désactivés tant que les vrais liens Stripe ne sont pas
   // chargés depuis data.json — évite un clic dans le vide sur le placeholder.
