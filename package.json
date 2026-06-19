@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "nouveau-client": "node scripts/nouveau-client.js",
-    "relance": "node scripts/relance.js"
+    "relance": "node scripts/relance.js",
+    "setup-airtable": "node scripts/setup-airtable.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.600.0",
