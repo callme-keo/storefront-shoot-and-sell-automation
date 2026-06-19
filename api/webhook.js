@@ -15,7 +15,7 @@ function readRawBody(req) {
   });
 }
 
-async function updateAirtable(slug, pack, email, datePaiement) {
+async function updateAirtable(slug, pack, email, datePaiement, amountCents) {
   const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY })
     .base(process.env.AIRTABLE_BASE_ID);
   const table = process.env.AIRTABLE_TABLE || 'Clients';
@@ -39,6 +39,7 @@ async function updateAirtable(slug, pack, email, datePaiement) {
       Statut: 'Payé',
       'Date paiement': datePaiement,
       'Pack acheté': packLabel,
+      Montant: amountCents != null ? amountCents / 100 : undefined,
       'Email confirmé': email,
       'J+21 programmé': true,
       'Date J+21 prévue': dateJ21.toISOString().split('T')[0],
@@ -108,7 +109,7 @@ const handler = async (req, res) => {
 
   // Airtable — non bloquant
   try {
-    await updateAirtable(slug, pack, email, today);
+    await updateAirtable(slug, pack, email, today, session.amount_total);
     console.log(`[webhook] Airtable mis à jour : ${slug} → payé`);
   } catch (err) {
     console.error('[webhook] Airtable error :', err.message);
