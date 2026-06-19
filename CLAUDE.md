@@ -199,7 +199,7 @@ Statuts : `envoyé` | `payé` | `upsell` | `relancé`
 ## Infos Kevin
 
 - **Nom :** Kevin CARDOSO
-- **Email contact (site + emails clients) :** contact@akowinstudios.com
+- **Email contact (site + emails clients) :** kevin@akowinstudios.com
 - **Instagram :** @callme_keo
 - **Statut :** Micro-entrepreneur (EI), activité photographie commerciale
 - **SIRET :** 982 019 374 00015
