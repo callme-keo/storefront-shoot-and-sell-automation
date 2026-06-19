@@ -34,10 +34,10 @@ Commerçant paie sur la page d'offre
 Webhook Stripe → api/webhook.js sur Vercel
         ├── Débloque le bon .zip sur R2 (token signé, pas d'URL en clair)
         ├── Met à jour Airtable : statut → "payé"
-        └── Programme l'email de suivi J+3 via Resend
+        └── Programme l'email de suivi J+21 via Resend
         │
         ▼
-J+3 → Resend envoie l'email de suivi automatiquement
+J+21 → Resend envoie l'email de suivi automatiquement
 ```
 
 ---
@@ -51,7 +51,7 @@ J+3 → Resend envoie l'email de suivi automatiquement
 | Stockage photos + zip | Cloudflare R2 | Gratuit ~10 Go |
 | Paiement + webhooks | Stripe API | 1,5% + 0,25€/carte EEE |
 | Dashboard suivi | Airtable (API) | Gratuit |
-| Email suivi J+3 | Resend | Gratuit 3 000/mois |
+| Email suivi J+21 | Resend | Gratuit 3 000/mois |
 | Script création client | Node.js local (Mac de Kevin) | Gratuit |
 
 ---
@@ -107,7 +107,7 @@ Fonction Vercel serverless — écoute les événements Stripe.
 - Vérifie la signature Stripe (STRIPE_WEBHOOK_SECRET) sur le **corps brut** — le webhook exporte `config.api.bodyParser = false`, sinon Vercel consomme le stream et la vérif échoue à chaque appel
 - Récupère `slug` et `pack` depuis les metadata de la session
 - Met à jour Airtable : statut → `payé`, date paiement, pack acheté, email client
-- Programme l'email J+3 via Resend (clé d'idempotence = id de session → pas de doublon si Stripe rejoue l'événement)
+- Programme l'email J+21 via Resend (clé d'idempotence = id de session → pas de doublon si Stripe rejoue l'événement)
 
 > Pas de token signé : c'est `api/download.js` qui re-vérifie la session Stripe au moment du téléchargement (plus simple et plus robuste qu'un JWT).
 
@@ -146,11 +146,11 @@ RESEND_API_KEY=...
 VERCEL_DOMAIN=https://ton-domaine.vercel.app
 ```
 
-### 5. `emails/suivi-j3.html`
-Template email de suivi envoyé automatiquement J+3.
+### 5. `emails/suivi-j21.html`
+Template email de suivi envoyé automatiquement J+21.
 Ton, sobre, dans la même identité visuelle.
 ```
-Objet : Avez-vous pu utiliser vos photos ?
+Objet : Vos photos
 
 Bonjour,
 
@@ -236,7 +236,7 @@ Statuts : `envoyé` | `payé` | `upsell` | `relancé`
 4. Tester en mode Stripe test avec une vraie boutique fictive
 5. Coder `api/webhook.js` + `api/download.js`
 6. Configurer le webhook dans le dashboard Stripe (pointer vers Vercel)
-7. Coder le template email `emails/suivi-j3.html`
-8. Test end-to-end complet : script → lien live → paiement test → livraison → email J+3
+7. Coder le template email `emails/suivi-j21.html`
+8. Test end-to-end complet : script → lien live → paiement test → livraison → email J+21
 9. Passer les clés Stripe en mode live
 10. Premier vrai DM 🎯

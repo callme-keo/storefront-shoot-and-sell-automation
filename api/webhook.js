@@ -49,7 +49,7 @@ async function updateAirtable(slug, pack, email, datePaiement, amountCents) {
 
 async function scheduleFollowupEmail(to, pack, idempotencyKey) {
   if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM) {
-    console.warn('[webhook] RESEND_API_KEY ou RESEND_FROM absent — email J+3 non programmé');
+    console.warn('[webhook] RESEND_API_KEY ou RESEND_FROM absent — email J+21 non programmé');
     return;
   }
   const resend = new Resend(process.env.RESEND_API_KEY);

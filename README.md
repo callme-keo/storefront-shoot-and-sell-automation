@@ -1,7 +1,7 @@
 # 📷 Photo Storefront — Tunnel de vente pour photographe freelance
 
 Tunnel de vente automatisé pour vendre des packs photo à des commerces locaux via un lien unique :
-photo offerte en DM → page d'offre personnalisée → paiement Stripe → livraison instantanée du `.zip` → facture PDF → email de suivi J+3.
+photo offerte en DM → page d'offre personnalisée → paiement Stripe → livraison instantanée du `.zip` → facture PDF → email de suivi J+21.
 
 Kevin shoote, uploade ses photos, lance un script — tout le reste tourne seul.
 
@@ -11,7 +11,7 @@ Kevin shoote, uploade ses photos, lance un script — tout le reste tourne seul.
 
 Tu shootes la devanture d'un commerce.
 Tu envoies **une photo offerte** en DM Instagram + un lien vers **sa page personnalisée** : la série verrouillée, deux formules, un bouton shooting.
-Il paie → il télécharge immédiatement → il peut générer sa facture en un clic → il reçoit un email de suivi 3 jours plus tard.
+Il paie → il télécharge immédiatement → il peut générer sa facture en un clic → il reçoit un email de suivi 3 semaines plus tard.
 
 > Coût par prospect : ~25 min (15 min de shoot + 10 min de retouche teaser).
 > Revenu par vente : 39–49 €. Objectif : convertir 1 boutique sur 4–5 contactées.
@@ -50,7 +50,7 @@ Il paie → Stripe redirige vers
         │
         └── webhook Stripe → api/webhook
               ├── met à jour Airtable (statut → payé)
-              └── programme l'email de suivi J+3 (Resend)
+              └── programme l'email de suivi J+21 (Resend)
 ```
 
 ---
@@ -67,13 +67,13 @@ Il paie → Stripe redirige vers
 ├── api/
 │   ├── teaser.js               # redirige vers la photo offerte (URL R2 signée)
 │   ├── download.js             # sert le .zip après vérif du paiement (URL R2 signée)
-│   └── webhook.js              # checkout.session.completed → Airtable + email J+3
+│   └── webhook.js              # checkout.session.completed → Airtable + email J+21
 │
 ├── scripts/
 │   └── nouveau-client.js       # crée Payment Links + data.json + push
 │
 ├── emails/
-│   └── suivi-j3.html           # template de l'email de suivi
+│   └── suivi-j21.html          # template de l'email de suivi
 │
 └── clients/
     └── [slug]/
@@ -126,15 +126,11 @@ Il ne reste qu'à uploader les photos sur R2 (voir arborescence ci-dessus) et en
   "prix_reseaux": 39,
   "prix_hd": 49,
   "lien_stripe_reseaux": "https://buy.stripe.com/xxx",
-  "lien_stripe_hd": "https://buy.stripe.com/yyy",
-  "statut": "envoyé",
-  "date_envoi": "2026-06-17",
-  "date_paiement": null,
-  "pack_achete": null
+  "lien_stripe_hd": "https://buy.stripe.com/yyy"
 }
 ```
 
-Statuts : `envoyé` · `payé` · `upsell` · `relancé`
+`data.json` est **public** : il ne contient que ce dont la page d'offre a besoin. Tout le suivi (statut, dates, paiement, pack acheté, email) vit dans **Airtable**, seule source de vérité.
 Le champ `rue` (vide par défaut) sert à pré-remplir l'adresse sur la facture du client.
 
 ---
@@ -156,9 +152,10 @@ Les fonctions `api/*` tournent sur Vercel : **leurs variables doivent être déf
 | `AIRTABLE_API_KEY` | script + webhook | Dashboard suivi (optionnel) |
 | `AIRTABLE_BASE_ID` | script + webhook | Base Airtable (optionnel) |
 | `AIRTABLE_TABLE` | script + webhook | Nom de table (défaut : `Clients`) |
-| `RESEND_API_KEY` | webhook | Envoi de l'email J+3 |
+| `RESEND_API_KEY` | webhook | Envoi de l'email J+21 |
 | `RESEND_FROM` | webhook | Expéditeur (domaine vérifié dans Resend) |
-| `RESEND_REPLY_TO` | webhook | Adresse de réponse (défaut : iCloud) |
+| `RESEND_REPLY_TO` | webhook | Adresse de réponse (défaut : `kevin@akowinstudios.com`) |
+| `RESEND_WEBHOOK_SECRET` | resend-webhook | Vérification de signature du webhook Resend (suivi d'ouverture J+21) |
 
 ---
 
@@ -170,7 +167,7 @@ Les fonctions `api/*` tournent sur Vercel : **leurs variables doivent être déf
 | Stockage photos + zip | **Cloudflare R2** | Gratuit ~10 Go |
 | Paiement + webhooks | **Stripe** (Payment Links) | 1,5 % + 0,25 €/carte EEE |
 | Dashboard suivi | **Airtable** | Gratuit |
-| Email de suivi J+3 | **Resend** | Gratuit 3 000/mois |
+| Email de suivi J+21 | **Resend** | Gratuit 3 000/mois |
 
 ---
 
@@ -208,10 +205,11 @@ Les fonctions `api/*` tournent sur Vercel : **leurs variables doivent être déf
 - [x] Mentions légales / CGV / RGPD
 - [x] Stockage Cloudflare R2 (URL signées, jamais d'URL en clair)
 - [x] Script de création client (Stripe Payment Links + data.json + push)
-- [x] Webhook Stripe (Airtable + déclenchement email J+3)
-- [x] Email de suivi automatique J+3 (Resend)
+- [x] Webhook Stripe (Airtable + déclenchement email J+21)
+- [x] Email de suivi automatique J+21 (Resend)
 - [x] Expiration des liens de téléchargement (30 j)
-- [ ] Test end-to-end en conditions réelles (paiement → livraison → Airtable → email J+3)
-- [ ] Domaine de prod neutre/pro côté client
+- [x] Test end-to-end en conditions réelles (paiement → livraison → Airtable → email J+21)
+- [x] Domaine de prod custom côté client (`creativeservices.akowinstudios.com`)
+- [x] Script de relance (`scripts/relance.js`, statut `Relancé`, refuse si déjà payé)
+- [x] Suivi d'ouverture du J+21 (webhook Resend → `J+21 envoyé` / `J+21 ouvert`)
 - [ ] Facture conforme e-invoicing B2B (échéance sept. 2027)
-- [ ] Dashboard de relance (statut `relancé`)

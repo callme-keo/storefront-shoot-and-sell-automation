@@ -7,12 +7,26 @@ const Airtable = require('airtable');
 const fs = require('fs');
 const path = require('path');
 
-const [,, slug, nom] = process.argv;
+const [,, slug, nomArg] = process.argv;
 
-if (!slug || !nom) {
-  console.error('\n❌  Usage : node scripts/nouveau-client.js <slug> "Nom Boutique"\n');
+if (!slug) {
+  console.error('\n❌  Usage : node scripts/nouveau-client.js <slug> ["Nom Boutique"]\n');
   process.exit(1);
 }
+
+// Met une majuscule en début de chaque mot (gère les tirets/underscores du slug).
+// « chymos » → « Chymos », « epicerie-du-marche » → « Epicerie Du Marche ».
+function capitaliser(s) {
+  return s
+    .replace(/[-_]+/g, ' ')
+    .split(' ')
+    .filter(Boolean)
+    .map((mot) => mot.charAt(0).toUpperCase() + mot.slice(1))
+    .join(' ');
+}
+
+// Nom optionnel : déduit du slug s'il est absent, sinon 1re lettre forcée en majuscule.
+const nom = nomArg ? nomArg.charAt(0).toUpperCase() + nomArg.slice(1) : capitaliser(slug);
 
 // Le slug sert de clé partout (R2, URL, download.js qui n'accepte que [a-z0-9-]).
 // On refuse tout slug non conforme plutôt que de créer un client silencieusement cassé.
