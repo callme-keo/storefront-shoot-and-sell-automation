@@ -1,0 +1,9 @@
+{
+  "slug": "chymos",
+  "nom": "Chymos",
+  "rue": "",
+  "prix_reseaux": 39,
+  "prix_hd": 49,
+  "lien_stripe_reseaux": "https://buy.stripe.com/fZu00de4w1gK3zG5qU9IQ00",
+  "lien_stripe_hd": "https://buy.stripe.com/4gM5kx8Kc2kOgms4mQ9IQ01"
+}
