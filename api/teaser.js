@@ -23,7 +23,7 @@ module.exports = async (req, res) => {
 
   const command = new GetObjectCommand({
     Bucket: process.env.CLOUDFLARE_R2_BUCKET,
-    Key: `${slug}/photos/teaser.jpg`,
+    Key: `${slug}/photos/teaser.jpeg`,
   });
 
   let url;

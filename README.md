@@ -93,11 +93,11 @@ Le code attend exactement cette organisation par client. À respecter à l'uploa
 ├── reseaux.zip          ← servi par api/download pour le pack « reseaux »
 ├── hd.zip               ← servi par api/download pour le pack « hd »
 └── photos/
-    └── teaser.jpg       ← photo offerte, servie par api/teaser
+    └── teaser.jpeg       ← photo offerte, servie par api/teaser
 ```
 
 - `api/download.js` lit la clé `[slug]/[pack].zip` (`reseaux.zip` ou `hd.zip`).
-- `api/teaser.js` lit la clé `[slug]/photos/teaser.jpg`.
+- `api/teaser.js` lit la clé `[slug]/photos/teaser.jpeg`.
 
 ---
 

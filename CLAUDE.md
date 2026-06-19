@@ -72,7 +72,7 @@ J+21 → Resend envoie l'email de suivi automatiquement
     └── [slug]/
         ├── data.json
         └── photos/
-            ├── teaser.jpg
+            ├── teaser.jpeg
             ├── 01.jpg … 10.jpg
             ├── stories/01.jpg … 10.jpg
             └── posts/01.jpg … 10.jpg
@@ -127,10 +127,10 @@ Fonction Vercel serverless — sert la photo offerte.
 
 **Fonctionnement :**
 - Reçoit `?slug=yyy`
-- Génère une URL signée R2 sur la clé `[slug]/photos/teaser.jpg` (expire dans 1h)
+- Génère une URL signée R2 sur la clé `[slug]/photos/teaser.jpeg` (expire dans 1h)
 - Sert à la fois le bouton « photo offerte » et le visuel hero de la page d'offre
 
-**Arborescence R2 attendue par client :** `[slug]/reseaux.zip`, `[slug]/hd.zip`, `[slug]/photos/teaser.jpg`
+**Arborescence R2 attendue par client :** `[slug]/reseaux.zip`, `[slug]/hd.zip`, `[slug]/photos/teaser.jpeg`
 
 ### 4. `.env` (ne jamais commiter — dans .gitignore)
 ```
