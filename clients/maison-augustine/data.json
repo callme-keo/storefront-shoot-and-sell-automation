@@ -1,0 +1,9 @@
+{
+  "slug": "maison-augustine",
+  "nom": "Maison Augustine",
+  "rue": "",
+  "prix_reseaux": 39,
+  "prix_hd": 49,
+  "lien_stripe_reseaux": "https://buy.stripe.com/aFa7sF2lO9Ng2vC9Ha9IQ08",
+  "lien_stripe_hd": "https://buy.stripe.com/aFabIVf8AaRkc6c2eI9IQ09"
+}
