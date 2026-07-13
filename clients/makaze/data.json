@@ -1,0 +1,9 @@
+{
+  "slug": "makaze",
+  "nom": "Makaze",
+  "rue": "",
+  "prix_reseaux": 39,
+  "prix_hd": 49,
+  "lien_stripe_reseaux": "https://buy.stripe.com/aFa14h1hK8Jc1ry06A9IQ0a",
+  "lien_stripe_hd": "https://buy.stripe.com/eVq6oBd0sf7A8U0g5y9IQ0b"
+}
