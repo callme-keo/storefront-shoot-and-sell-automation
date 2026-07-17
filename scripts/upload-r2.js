@@ -7,11 +7,14 @@
 //   node scripts/upload-r2.js <slug> [dossier-source]
 //   ex. node scripts/upload-r2.js chymos "/Users/keo/Desktop/chymos"
 //
-// Le dossier source doit contenir : reseaux.zip, hd.zip, photos/teaser.jpeg
-// (par défaut, on cherche dans clients/<slug>/).
+// Le dossier source doit contenir : reseaux.zip, hd.zip, photos/teaser.jpeg,
+// _source/stories/01.jpg…NN.jpg (par défaut, on cherche dans clients/<slug>/).
+// Les vignettes basse résolution de la planche contact (offer.html) sont
+// générées automatiquement depuis _source/stories/ à chaque upload.
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
 
 const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
 
@@ -53,6 +56,46 @@ const FILES = [
 
 const mo = (bytes) => `${(bytes / 1024 / 1024).toFixed(1)} Mo`;
 
+// Vignettes de la planche contact : volontairement minuscules (48px de large,
+// qualité 40) — même en désactivant le flou CSS côté client, aucun détail
+// exploitable n'est visible. Générées depuis les photos sources, jamais
+// depuis les fichiers pleine résolution.
+const STORIES_SRC = path.join(srcDir, '_source', 'stories');
+const PREVIEW_WIDTH = 48;
+const PREVIEW_QUALITY = 40;
+
+async function uploadPreviews() {
+  if (!fs.existsSync(STORIES_SRC)) {
+    console.warn(`    ⚠️  Pas de vignettes planche contact : dossier introuvable → ${STORIES_SRC}`);
+    return { ok: 0, total: 0 };
+  }
+  const files = fs.readdirSync(STORIES_SRC).filter((f) => /^\d{2}\.jpe?g$/i.test(f)).sort();
+  let ok = 0;
+  for (const file of files) {
+    const n = path.parse(file).name;
+    const key = `${slug}/photos/preview/${n}.jpg`;
+    process.stdout.write(`    🖼️  vignette ${file} → ${key} … `);
+    try {
+      const buffer = await sharp(path.join(STORIES_SRC, file))
+        .resize({ width: PREVIEW_WIDTH })
+        .jpeg({ quality: PREVIEW_QUALITY })
+        .toBuffer();
+      await r2.send(new PutObjectCommand({
+        Bucket: BUCKET,
+        Key: key,
+        Body: buffer,
+        ContentType: 'image/jpeg',
+      }));
+      console.log('✅');
+      ok++;
+    } catch (e) {
+      console.log('❌');
+      console.error(`       Erreur : ${e.message}`);
+    }
+  }
+  return { ok, total: files.length };
+}
+
 async function uploadOne(file) {
   const full = path.join(srcDir, file.local);
   if (!fs.existsSync(full)) {
@@ -91,11 +134,21 @@ async function main() {
   }
 
   console.log(`\n${ok === FILES.length ? '🎉' : '⚠️'}  ${ok}/${FILES.length} fichier(s) uploadé(s).`);
+  if (ok !== FILES.length) {
+    console.log('    Vérifie les noms : reseaux.zip, hd.zip, photos/teaser.jpeg');
+  }
+
+  console.log('\n🖼️  Vignettes planche contact :');
+  const previews = await uploadPreviews();
+  if (previews.total > 0) {
+    console.log(`   ${previews.ok}/${previews.total} vignette(s) uploadée(s).`);
+  }
+
   if (ok === FILES.length) {
     const domain = (process.env.VERCEL_DOMAIN || '').replace(/\/$/, '');
-    console.log(`    Vérif photo offerte : ${domain}/${slug}/free-photo\n`);
+    console.log(`\n    Vérif photo offerte : ${domain}/${slug}/free-photo\n`);
   } else {
-    console.log('    Vérifie les noms : reseaux.zip, hd.zip, photos/teaser.jpeg\n');
+    console.log('');
   }
 }
 

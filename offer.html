@@ -57,6 +57,7 @@
   @media(max-width:600px){.grid-sheet{grid-template-columns:repeat(3,1fr);gap:6px}}
   .grid-sheet .frame{aspect-ratio:9/16}
   .grid-sheet .frame:last-child{grid-column:1}
+  .frame-img{position:absolute;inset:0;background-size:cover;background-position:center}
   .locked::after{content:"";position:absolute;inset:0;background:rgba(243,241,234,.55)}
   .locked .frame-img{filter:blur(7px);transform:scale(1.05)}
   .lock{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2}
@@ -256,7 +257,7 @@
   var lock = '<div class="frame-img"></div><span class="lock"><svg viewBox="0 0 24 24" fill="none" stroke="#2243C8" stroke-width="1.8"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>';
   var sheet = document.getElementById('sheet');
   sheet.innerHTML = labels.map(function(l){
-    return '<div class="frame locked"><span class="tag">'+l+'</span>'+lock+'</div>';
+    return '<div class="frame locked" data-n="'+l+'"><span class="tag">'+l+'</span>'+lock+'</div>';
   }).join('');
 
   var params = new URLSearchParams(window.location.search);
@@ -264,6 +265,16 @@
   // « /chymos » (sans ?slug=). On lit donc le slug depuis le chemin, avec
   // repli sur le query param (accès direct à /offer?slug=… en test).
   var slug = params.get('slug') || window.location.pathname.split('/').filter(Boolean)[0] || null;
+
+  // Vignettes basse résolution de la planche contact (déjà minuscules côté R2,
+  // le flou CSS n'est donc qu'un habillage — pas la protection).
+  if (slug) {
+    sheet.querySelectorAll('.frame.locked').forEach(function(frame){
+      var n = frame.getAttribute('data-n');
+      var img = frame.querySelector('.frame-img');
+      img.style.backgroundImage = 'url(/api/preview?slug=' + slug + '&n=' + n + ')';
+    });
+  }
 
   // Boutons de paiement désactivés tant que les vrais liens Stripe ne sont pas
   // chargés depuis data.json — évite un clic dans le vide sur le placeholder.
